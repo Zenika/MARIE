@@ -1,17 +1,20 @@
 <template>
   <div class="hello">
     <h1>Things</h1>
-    <ul>
-      <li v-for="thing in things" :key="thing.name">
-        {{thing.name}}
-      </li>
-    </ul>
+    <md-layout>
+      <marie-thing :thing="thing" v-for="thing in things" :key="thing.name"></marie-thing>
+    </md-layout>
   </div>
 </template>
 
 <script>
+import Thing from '@/components/Thing'
+
 export default {
-  name: 'hello',
+  name: 'marie-things',
+  components: {
+    'marie-thing': Thing
+  },
   data () {
     return {
       things: []

@@ -8,7 +8,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Things',
+      name: 'marie-things',
       component: Things
     }
   ]
