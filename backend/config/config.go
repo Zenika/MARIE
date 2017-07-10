@@ -11,6 +11,7 @@ var cfg Configuration
 // Configuration represent the configuration of the application
 type Configuration struct {
 	APIAiToken string `json:"apiai-token"`
+	DbName     string `json:"database-name"`
 }
 
 // Load the configuration and save it
