@@ -2,8 +2,8 @@ package thing
 
 import (
 	"encoding/json"
-	"log"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -19,4 +19,15 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	Create(t)
+}
+
+// GetAll things and send it
+func GetAll(w http.ResponseWriter, r *http.Request) {
+	things := ReadAll()
+
+	res, err := json.Marshal(things)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.Write(res)
 }

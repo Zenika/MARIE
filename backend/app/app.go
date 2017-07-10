@@ -41,7 +41,8 @@ func (a *App) initializeRoutes() {
 
 	// MARIE api
 	s := r.PathPrefix("/api").Subrouter()
-	s.HandleFunc("/thing", thing.Post).Methods("POST")
+	s.HandleFunc("/things", thing.Post).Methods("POST")
+	s.HandleFunc("/things", thing.GetAll).Methods("GET")
 
 	a.Router = c.Handler(r)
 }
