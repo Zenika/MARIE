@@ -1,6 +1,6 @@
 <template>
   <md-layout class="marie-thing" md-flex="25">
-    <md-card style="width: 100%">
+    <md-card style="width: 100%; box-sizing: border-box;">
       <md-card-header>
         <div class="md-title">{{thing.name}}</div>
         <div class="md-subhead">{{thing.type}}</div>
@@ -37,5 +37,8 @@ h1, h2 {
 
 .marie-thing {
   width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  display: inline-block;
 }
 </style>

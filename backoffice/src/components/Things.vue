@@ -1,6 +1,13 @@
 <template>
-  <div class="hello">
-    <h1>Things</h1>
+  <div class="marie-things">
+    <h1>
+      Things
+      <router-link to="thing-form">
+        <md-button class="md-icon-button md-raised">
+          <md-icon>add</md-icon>
+        </md-button>
+      </router-link>
+  </h1>
     <md-layout>
       <marie-thing :thing="thing" v-for="thing in things" :key="thing.name"></marie-thing>
     </md-layout>
