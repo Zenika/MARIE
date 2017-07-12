@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 // Post handle the post request
@@ -18,6 +20,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 	}
+	t.ID = bson.NewObjectId()
 	Create(t)
 }
 

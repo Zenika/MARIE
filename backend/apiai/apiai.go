@@ -13,7 +13,10 @@ import (
 func Analyze(req string) map[string]interface{} {
 	res := request(req)
 	if res.Metadata.IntentName == "Get" {
-		return map[string]interface{}{"mean": record.MeanLast(res.Parameters["variable-name"])}
+		if res.Parameters["room"] != "" {
+			return map[string]interface{}{"mean": record.MeanLast(res.Parameters["variable-name"], res.Parameters["room"])}
+		}
+		return map[string]interface{}{"mean": record.MeanLast(res.Parameters["variable-name"], "")}
 	}
 	return nil
 }

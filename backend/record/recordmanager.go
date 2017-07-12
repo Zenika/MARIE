@@ -12,7 +12,7 @@ import (
 )
 
 // MeanLast of every things for a specific parameter
-func MeanLast(name string) float64 {
+func MeanLast(name string, l string) float64 {
 	cfg := config.Load()
 
 	s := utils.GetSession()
@@ -24,15 +24,24 @@ func MeanLast(name string) float64 {
 	r := Record{}
 	sum := 0.0
 	n := 0.0
+
 	for _, t := range things {
 		err := c.Find(bson.M{"thing_id": t.ID}).Sort("-date").One(&r)
+
 		if err == mgo.ErrNotFound {
 			continue
 		} else if err != nil {
 			log.Fatal(err)
 		}
-		sum = sum + r.Value.(float64)
-		n++
+		if l == "" {
+			sum = sum + r.Value.(float64)
+			n++
+		} else {
+			if t.Location == l {
+				sum = sum + r.Value.(float64)
+				n++
+			}
+		}
 	}
 	return sum / n
 }

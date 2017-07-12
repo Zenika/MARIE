@@ -11,6 +11,11 @@
         <label>Type</label>
         <md-input v-model="type"></md-input>
       </md-input-container>
+
+      <md-input-container>
+        <label>Location</label>
+        <md-input v-model="location"></md-input>
+      </md-input-container>
   
       <md-input-container>
         <label>Protocol (WS, HTTP, MQTT, ...)</label>
@@ -90,6 +95,7 @@ export default {
       name: '',
       type: '',
       protocol: '',
+      location: '',
       actions: [],
       getters: []
     }
@@ -102,7 +108,8 @@ export default {
         type: this.type,
         protocol: this.protocol,
         actions: this.actions,
-        getters: this.getters
+        getters: this.getters,
+        location: this.location
       }
       this.$http.post(process.env.API_URL + '/things', thing)
         .then(res => router.push('/'))
