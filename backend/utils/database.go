@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"log"
 
 	"gopkg.in/mgo.v2"
@@ -20,7 +19,7 @@ func GetSession() *mgo.Session {
 
 		// Assignment so that dbSession is used
 		dbSession = dbS
-		fmt.Println("MongoDB Session created ")
+		log.Println("MongoDB Session created ")
 	}
 	return dbSession.Copy()
 }

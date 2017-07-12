@@ -12,6 +12,8 @@ var cfg Configuration
 type Configuration struct {
 	APIAiToken string `json:"apiai-token"`
 	DbName     string `json:"database-name"`
+	MQTTUrl    string `json:"mqtt-url"`
+	MQTTId     string `json:"mqtt-id"`
 }
 
 // Load the configuration and save it

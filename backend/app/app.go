@@ -18,6 +18,7 @@ type App struct {
 // Initialize the application
 func (a *App) Initialize() {
 	a.initializeRoutes()
+	network.InitMQTT()
 }
 
 // Run the application
