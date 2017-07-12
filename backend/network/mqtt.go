@@ -8,6 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/Zenika/MARIE/backend/config"
+	"github.com/Zenika/MARIE/backend/record"
 
 	"github.com/Zenika/MARIE/backend/thing"
 
@@ -62,12 +63,12 @@ func DoMQTT(id bson.ObjectId, name string, params map[string]interface{}) {
 }
 
 func handleGetter(msg *packet.Message, err error) {
-	var r = thing.Record{}
+	var r = record.Record{}
 	err = json.Unmarshal(msg.Payload, &r)
 	if err != nil {
 		log.Println("Unmarshal error MQTT")
 		return
 	}
 	r.Name = msg.Topic
-	thing.SaveRecord(r)
+	record.Save(r)
 }

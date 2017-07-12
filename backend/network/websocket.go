@@ -6,8 +6,6 @@ import (
 	"net/http"
 
 	"github.com/Zenika/MARIE/backend/apiai"
-	"github.com/Zenika/MARIE/backend/thing"
-	apiaigo "github.com/kamalpy/apiai-go"
 
 	"github.com/gorilla/websocket"
 )
@@ -43,15 +41,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 		if req.Type == "speech" {
-			res := apiai.Analyze(req.Message)
-			handleAPIAiResult(conn, res)
+			conn.WriteJSON(apiai.Analyze(req.Message))
 		}
-	}
-}
-
-func handleAPIAiResult(conn *websocket.Conn, res apiaigo.Result) {
-	if res.Metadata.IntentName == "Get" {
-		dat := map[string]float64{"mean": thing.MeanLastRecord(res.Parameters["variable-name"])}
-		conn.WriteJSON(dat)
 	}
 }

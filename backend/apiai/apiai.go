@@ -4,12 +4,22 @@ import (
 	"fmt"
 
 	"github.com/Zenika/MARIE/backend/config"
+	"github.com/Zenika/MARIE/backend/record"
 
 	apiaigo "github.com/kamalpy/apiai-go"
 )
 
-// Analyze the text request and return the results from apiai
-func Analyze(req string) apiaigo.Result {
+// Analyze request and returns JSON
+func Analyze(req string) map[string]interface{} {
+	res := request(req)
+	if res.Metadata.IntentName == "Get" {
+		return map[string]interface{}{"mean": record.MeanLast(res.Parameters["variable-name"])}
+	}
+	return nil
+}
+
+// Request apiai and return the result
+func request(req string) apiaigo.Result {
 	cfg := config.Load()
 
 	ai := apiaigo.APIAI{

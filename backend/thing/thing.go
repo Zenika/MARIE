@@ -1,17 +1,12 @@
 package thing
 
 import (
-	"time"
-
 	"gopkg.in/mgo.v2/bson"
 )
 
 const (
-	// ThingCollectionName represents the collection name in the mongo db
-	ThingCollectionName = "things"
-
-	// RecordCollectionName represents the collection name in the mongo db
-	RecordCollectionName = "records"
+	// CollectionName represents the collection name in the mongo db
+	CollectionName = "things"
 )
 
 // Thing represents a connected object
@@ -40,12 +35,4 @@ type Parameter struct {
 type Getter struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
-}
-
-// Record represents the record for a thing getter
-type Record struct {
-	ThingID bson.ObjectId `json:"thing_id" bson:"thing_id"`
-	Name    string        `json:"name"`
-	Value   interface{}   `json:"value"`
-	Date    time.Time
 }
