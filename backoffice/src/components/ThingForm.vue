@@ -1,87 +1,108 @@
 <template>
   <div class="marie-thing-form">
-    <h1>Create a thing</h1>
-    <form @submit.stop.prevent="create()">
-      <md-input-container>
-        <label>Name</label>
-        <md-input v-model="name"></md-input>
-      </md-input-container>
+    <form @submit.stop.prevent="create">
+      <v-text-field
+        label="Name"
+        value=""
+        v-model="name"
+      ></v-text-field>
+      <v-text-field
+        label="Type"
+        value=""
+        v-model="type"
+      ></v-text-field>    
+      <v-text-field
+        label="Location"
+        value=""
+        v-model="location"
+      ></v-text-field>   
+      <v-text-field
+        label="Protocol (WS, HTTP, MQTT, ...)"
+        value=""
+        v-model="protocol"
+      ></v-text-field>   
+    
+      <h5>Actions</h5>
+      <v-text-field
+        label="New action name"
+        value=""
+        v-model="newAction"
+        @keydown.native.enter.prevent="addAction"
+      ></v-text-field>
+      <v-card v-for="action in actions" :key="action.id">
+        <v-card-title primary-title>
+          <v-text-field
+            label="Action name"
+            value=""
+            v-model="action.name"
+          ></v-text-field>
+        </v-card-title>
+        <v-card-text>
+          <p class="subheading">
+            Parameters
+          </p>
+          <v-layout row wrap>
+            <v-text-field
+              label="New param name"
+              value=""
+              v-model="newParamName"
+              @keydown.native.enter.prevent="addParameter(action)"
+            ></v-text-field>
+            <v-text-field
+              label="New param type"
+              value=""
+              v-model="newParamType"
+              @keydown.native.enter.prevent="addParameter(action)"
+            ></v-text-field>
+          </v-layout>
+            <v-layout row wrap v-for="param in action.parameters" :key="param.id">
+              <v-text-field
+                label="Parameter name"
+                value=""
+                v-model="param.name"
+              ></v-text-field>
+              <v-text-field
+                label="Parameter type"
+                value=""
+                v-model="param.type"
+              ></v-text-field>
+            </v-layout>
+        </v-card-text>
+      </v-card>
   
-      <md-input-container>
-        <label>Type</label>
-        <md-input v-model="type"></md-input>
-      </md-input-container>
 
-      <md-input-container>
-        <label>Location</label>
-        <md-input v-model="location"></md-input>
-      </md-input-container>
-  
-      <md-input-container>
-        <label>Protocol (WS, HTTP, MQTT, ...)</label>
-        <md-input v-model="protocol"></md-input>
-      </md-input-container>
-  
-      <div>
-        <h2>Actions</h2>
-        <md-card v-for="action in actions" :key="action.id">
-          <md-card-header>
-            <md-input-container>
-              <label>Name</label>
-              <md-input v-model="action.name"></md-input>
-            </md-input-container>
-          </md-card-header>
-          <md-card-content>
-            <h3>Parameters</h3>
-            <md-table>
-              <md-table-header>
-                <md-table-head>Name</md-table-head>
-                <md-table-head>Type</md-table-head>
-              </md-table-header>
-              <md-table-body>
-                <md-table-row v-for="parameter in action.parameters" :key="parameter.id">
-                  <md-table-cell>
-                    <md-input-container md-inline>
-                      <md-input v-model="parameter.name"></md-input>
-                    </md-input-container>
-                  </md-table-cell>
-                  <md-table-cell>
-                    <md-input-container md-inline>
-                      <md-input v-model="parameter.type"></md-input>
-                    </md-input-container>
-                  </md-table-cell>
-                </md-table-row>
-              </md-table-body>
-            </md-table>
-            <md-button @click="addParameter(action)" class="md-icon-button md-raised">
-              <md-icon>add</md-icon>
-            </md-button>
-          </md-card-content>
-        </md-card>
-        <md-button @click="addAction" class="md-icon-button md-raised">
-          <md-icon>add</md-icon>
-        </md-button>
-      </div>
-  
-      <div>
-        <h2>Getters</h2>
-        <md-card v-for="getter in getters" :key="getter.id">
-          <md-card-content>
-            <md-input-container>
-              <label>Name</label>
-              <md-input v-model="getter.name"></md-input>
-            </md-input-container>
-            <md-input-container>
-              <label>Type</label>
-              <md-input v-model="getter.type"></md-input>
-            </md-input-container>
-          </md-card-content>
-        </md-card>
-        <md-button @click="addGetter" class="md-icon-button md-raised">
-          <md-icon>add</md-icon>
-        </md-button>
-      </div>
-      <input type="submit" class="md-button md-raised" value="Create">
+      <h5>Getters</h5>
+      <v-layout>
+        <v-text-field
+          label="New getter name"
+          value=""
+          v-model="newGetterName"
+          @keydown.native.enter.prevent="addGetter"
+        ></v-text-field>
+        <v-text-field
+          label="New getter type"
+          value=""
+          v-model="newGetterType"
+          @keydown.native.enter.prevent="addGetter"
+        ></v-text-field>
+      </v-layout>
+      <v-card v-for="getter in getters" :key="getter.id">
+        <v-card-text>
+          <v-layout>
+            <v-text-field
+              label="Getter name"
+              value=""
+              v-model="getter.name"
+            ></v-text-field>
+            <v-text-field
+              label="Getter type"
+              value=""
+              v-model="getter.type"
+            ></v-text-field>
+          </v-layout>
+        </v-card-text>
+      </v-card>
+      <v-btn type="submit">Create</v-btn>
     </form>
   </div>
 </template>
@@ -90,13 +111,18 @@
 import router from '@/router/index'
 export default {
   name: 'marie-thing-form',
-  data () {
+  data: () => {
     return {
       name: '',
       type: '',
       protocol: '',
       location: '',
       actions: [],
+      newAction: '',
+      newParamName: '',
+      newParamType: '',
+      newGetterName: '',
+      newGetterType: '',
       getters: []
     }
   },
@@ -115,13 +141,22 @@ export default {
         .then(res => router.push('/'))
     },
     addAction () {
-      this.actions.push({ name: '', parameters: [] })
+      this.actions.push({ name: this.newAction, parameters: [] })
+      this.newAction = ''
     },
     addGetter () {
-      this.getters.push({ name: '', type: '' })
+      if (this.newGetterName !== '' && this.newGetterType !== '') {
+        this.getters.push({ name: this.newGetterName, type: this.newGetterType })
+        this.newGetterName = ''
+        this.newGetterType = ''
+      }
     },
     addParameter (action) {
-      action.parameters.push({ name: '', type: '' })
+      if (this.newParamName !== '' && this.newParamType !== '') {
+        action.parameters.push({ name: this.newParamName, type: this.newParamType })
+        this.newParamName = ''
+        this.newParamType = ''
+      }
     }
   }
 }
@@ -129,17 +164,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1,
-h2 {
-  font-weight: 100;
-}
-
-.md-card {
-  margin: 10px;
-}
-
-form {
-  width: 75%;
-  display: inline-block;
+.card {
+  margin-bottom: 10px;
 }
 </style>

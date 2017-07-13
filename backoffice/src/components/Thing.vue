@@ -1,25 +1,49 @@
 <template>
-  <md-layout class="marie-thing" md-flex="25">
-    <md-card style="width: 100%; box-sizing: border-box;">
-      <md-card-header>
-        <div class="md-title">{{thing.name}}</div>
-        <div class="md-subhead">{{thing.type}}</div>
-      </md-card-header>
+  <v-card>
+    <v-card-title primary-title>
+      <h3 class="headline">{{thing.name}}</h3><br />
+    </v-card-title>
+    <v-card-text>
+      <div class="subheading">
+        Type : {{thing.type}}<br />
+        Protocol : {{thing.protocol}}<br />
+        Location : {{thing.location}}
+      </div>
+      <v-list>
+        <v-list-group v-if="thing.actions.length">
+          <v-list-tile slot="item">
+            <v-list-tile-content>
+             Actions
+            </v-list-tile-content>
+            <v-list-tile-action>
+              <v-icon>keyboard_arrow_down</v-icon>
+            </v-list-tile-action>
+          </v-list-tile>
+          <v-list-tile v-for="action in thing.actions" :key="action.name">
+            <v-list-tile-content>
+              {{action.name}}
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list-group>
 
-      <md-card-content>
-        <div>
-          Protocol : {{thing.protocol}}
-        </div>
-        <div>
-          Actions : <span v-for="action in thing.actions" :key="action.name">{{action.name}}</span>
-        </div>
-        <div>
-          Getters : <span v-for="getter in thing.getters" :key="getter.name">{{getter.name}}</span>
-        </div>
-      </md-card-content>
-      
-    </md-card>
-  </md-layout>
+        <v-list-group v-if="thing.getters.length">
+          <v-list-tile slot="item">
+            <v-list-tile-content>
+             Getters
+            </v-list-tile-content>
+            <v-list-tile-action>
+              <v-icon>keyboard_arrow_down</v-icon>
+            </v-list-tile-action>
+          </v-list-tile>
+          <v-list-tile v-for="getter in thing.getters" :key="getter.name">
+            <v-list-tile-content>
+              {{getter.type}} - {{getter.name}}
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list-group>
+      </v-list>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -35,10 +59,4 @@ h1, h2 {
   font-weight: 100;
 }
 
-.marie-thing {
-  width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
-  display: inline-block;
-}
 </style>

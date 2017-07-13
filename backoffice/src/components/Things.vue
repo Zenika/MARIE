@@ -1,16 +1,10 @@
 <template>
   <div class="marie-things">
-    <h1>
-      Things
-      <router-link to="thing-form">
-        <md-button class="md-icon-button md-raised">
-          <md-icon>add</md-icon>
-        </md-button>
-      </router-link>
-  </h1>
-    <md-layout>
-      <marie-thing :thing="thing" v-for="thing in things" :key="thing.name"></marie-thing>
-    </md-layout>
+    <v-layout>
+      <v-flex xs3>
+        <marie-thing :thing="thing" v-for="thing in things" :key="thing.name"></marie-thing>
+      </v-flex>
+    </v-layout>
   </div>
 </template>
 
@@ -22,7 +16,7 @@ export default {
   components: {
     'marie-thing': Thing
   },
-  data () {
+  data: () => {
     return {
       things: []
     }
