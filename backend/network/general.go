@@ -1,7 +1,10 @@
 package network
 
-import "gopkg.in/mgo.v2/bson"
-import "github.com/Zenika/MARIE/backend/thing"
+import (
+	"github.com/Zenika/MARIE/backend/mqtt"
+	"github.com/Zenika/MARIE/backend/thing"
+	"gopkg.in/mgo.v2/bson"
+)
 
 // Do something on a thing
 func Do(id bson.ObjectId, name string, params map[string]interface{}) {
@@ -11,7 +14,7 @@ func Do(id bson.ObjectId, name string, params map[string]interface{}) {
 	}
 	switch t.Protocol {
 	case "MQTT":
-		DoMQTT(id, name, params)
+		mqtt.Do(id, name, params)
 		break
 	}
 }

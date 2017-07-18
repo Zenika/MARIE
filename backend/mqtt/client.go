@@ -1,4 +1,4 @@
-package network
+package mqtt
 
 import (
 	"encoding/json"
@@ -18,8 +18,8 @@ import (
 
 var mqtt *client.Client
 
-// InitMQTT client
-func InitMQTT() {
+// Init MQTT client
+func Init() {
 	cfg := config.Load()
 
 	// Create mqtt client and connect
@@ -57,8 +57,8 @@ func AddSubscription(topic string) {
 	mqtt.Subscribe(topic, 0)
 }
 
-// DoMQTT something on the thing
-func DoMQTT(id bson.ObjectId, name string, params map[string]interface{}) {
+// Do something on the thing
+func Do(id bson.ObjectId, name string, params map[string]interface{}) {
 	paramStr, err := json.Marshal(params)
 	if err != nil {
 		log.Println("Error while parsing JSON")

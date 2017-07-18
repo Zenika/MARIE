@@ -4,7 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Zenika/MARIE/backend/mqtt"
 	"github.com/Zenika/MARIE/backend/network"
+	"github.com/Zenika/MARIE/backend/websocket"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -17,7 +19,7 @@ type App struct {
 // Initialize the application
 func (a *App) Initialize() {
 	a.initializeRoutes()
-	network.InitMQTT()
+	mqtt.Init()
 }
 
 // Run the application
@@ -37,7 +39,7 @@ func (a *App) initializeRoutes() {
 	r := mux.NewRouter()
 
 	// Websockets
-	r.HandleFunc("/ws", network.Handle)
+	r.HandleFunc("/ws", websocket.Handle)
 
 	// MARIE api
 	s := r.PathPrefix("/api").Subrouter()
@@ -46,4 +48,5 @@ func (a *App) initializeRoutes() {
 	s.HandleFunc("/things/{id}", network.Remove).Methods("DELETE")
 
 	a.Router = c.Handler(r)
+	log.Println("HTTP and WS servers started")
 }

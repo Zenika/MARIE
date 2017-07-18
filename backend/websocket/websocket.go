@@ -1,4 +1,4 @@
-package network
+package websocket
 
 import (
 	"encoding/json"
@@ -7,10 +7,10 @@ import (
 
 	"github.com/Zenika/MARIE/backend/apiai"
 
-	"github.com/gorilla/websocket"
+	ws "github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
+var upgrader = ws.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Zenika/MARIE/backend/mqtt"
 	"github.com/Zenika/MARIE/backend/record"
 	"github.com/Zenika/MARIE/backend/thing"
 	"github.com/gorilla/mux"
@@ -28,7 +29,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	thing.Create(t)
 
 	for _, g := range t.Getters {
-		AddSubscription(g.Name)
+		mqtt.AddSubscription(g.Name)
 	}
 }
 
