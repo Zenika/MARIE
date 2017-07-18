@@ -8,7 +8,7 @@
         Id : {{thing.id}}<br />
         Type : {{thing.type}}<br />
         Protocol : {{thing.protocol}}<br />
-        Location : {{thing.location}}
+        <span v-if="thing.location">Location : {{thing.location}}</span>
       </div>
       <v-list>
         <v-list-group v-if="thing.actions.length">
