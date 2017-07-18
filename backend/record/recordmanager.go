@@ -65,3 +65,15 @@ func Save(r Record) error {
 
 	return err
 }
+
+// DeleteThingID delete the records that have a specific thing id
+func DeleteThingID(id bson.ObjectId) error {
+	cfg := config.Load()
+
+	s := utils.GetSession()
+	defer s.Close()
+
+	c := s.DB(cfg.DbName).C(CollectionName)
+	err := c.Remove(bson.M{"thing_id": id})
+	return err
+}

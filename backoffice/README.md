@@ -4,6 +4,8 @@
 
 ## Build Setup
 
+You must have the backend running in order to register new things
+
 ``` bash
 # install dependencies
 npm install

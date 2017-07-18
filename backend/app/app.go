@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/Zenika/MARIE/backend/network"
-	"github.com/Zenika/MARIE/backend/thing"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -42,8 +41,9 @@ func (a *App) initializeRoutes() {
 
 	// MARIE api
 	s := r.PathPrefix("/api").Subrouter()
-	s.HandleFunc("/things", thing.Post).Methods("POST")
-	s.HandleFunc("/things", thing.GetAll).Methods("GET")
+	s.HandleFunc("/things", network.Post).Methods("POST")
+	s.HandleFunc("/things", network.GetAll).Methods("GET")
+	s.HandleFunc("/things/{id}", network.Remove).Methods("DELETE")
 
 	a.Router = c.Handler(r)
 }

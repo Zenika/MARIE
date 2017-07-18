@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	// CollectionName represents the collection name in the mongo db
-	CollectionName = "things"
+	// ThingCollectionName represents the collection name in the mongo db
+	ThingCollectionName = "things"
 )
 
 // Thing represents a connected object

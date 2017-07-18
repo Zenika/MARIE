@@ -128,7 +128,6 @@ export default {
   },
   methods: {
     create () {
-      console.log(this.name)
       const thing = {
         name: this.name,
         type: this.type,

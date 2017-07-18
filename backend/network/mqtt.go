@@ -52,6 +52,11 @@ func InitMQTT() {
 	log.Println("MQTT client started")
 }
 
+// AddSubscription add subscribtion on a specific topic
+func AddSubscription(topic string) {
+	mqtt.Subscribe(topic, 0)
+}
+
 // DoMQTT something on the thing
 func DoMQTT(id bson.ObjectId, name string, params map[string]interface{}) {
 	paramStr, err := json.Marshal(params)

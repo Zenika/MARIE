@@ -6,7 +6,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/Zenika/MARIE/backend/config"
-
 	"github.com/Zenika/MARIE/backend/utils"
 )
 
@@ -17,11 +16,12 @@ func Create(t Thing) {
 	s := utils.GetSession()
 	defer s.Close()
 
-	c := s.DB(cfg.DbName).C(CollectionName)
+	c := s.DB(cfg.DbName).C(ThingCollectionName)
 	err := c.Insert(t)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 }
 
 // ReadAll things in database
@@ -32,7 +32,7 @@ func ReadAll() []Thing {
 
 	var things []Thing
 
-	c := s.DB(cfg.DbName).C(CollectionName)
+	c := s.DB(cfg.DbName).C(ThingCollectionName)
 	err := c.Find(bson.M{}).All(&things)
 	if err != nil {
 		log.Fatal(err)
@@ -48,7 +48,7 @@ func Read(id bson.ObjectId) (Thing, error) {
 	s := utils.GetSession()
 	defer s.Close()
 
-	c := s.DB(cfg.DbName).C(CollectionName)
+	c := s.DB(cfg.DbName).C(ThingCollectionName)
 
 	res := Thing{}
 	err := c.FindId(id).One(&res)
@@ -68,7 +68,7 @@ func ReadGetterName(name string) []Thing {
 	defer s.Close()
 
 	// Select all things with this parameter
-	c := s.DB(cfg.DbName).C(CollectionName)
+	c := s.DB(cfg.DbName).C(ThingCollectionName)
 	things := []Thing{}
 
 	err := c.Pipe([]bson.M{{"$match": bson.M{"getters.name": name}}}).All(&things)
@@ -76,4 +76,16 @@ func ReadGetterName(name string) []Thing {
 		log.Fatal(err)
 	}
 	return things
+}
+
+// Delete the thing from the database
+func Delete(id bson.ObjectId) error {
+	cfg := config.Load()
+
+	s := utils.GetSession()
+	defer s.Close()
+
+	c := s.DB(cfg.DbName).C(ThingCollectionName)
+
+	return c.RemoveId(id)
 }
