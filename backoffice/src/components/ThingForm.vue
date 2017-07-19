@@ -116,7 +116,8 @@
           </v-layout>
         </v-card-text>
       </v-card>
-      <v-btn type="submit">Create</v-btn>
+      <v-btn v-if="!id" type="submit">Create</v-btn>
+      <v-btn v-if="id" type="submit">Update</v-btn>
     </form>
   </div>
 </template>
@@ -127,6 +128,7 @@ export default {
   name: 'marie-thing-form',
   data: () => {
     return {
+      id: '',
       name: '',
       type: '',
       protocol: '',
@@ -142,6 +144,11 @@ export default {
       rules: {
         required: (value) => !!value || 'Required.'
       }
+    }
+  },
+  mounted () {
+    if (this.$route.params.id) {
+      this.getThing(this.$route.params.id)
     }
   },
   methods: {
@@ -166,6 +173,7 @@ export default {
         }
       }
       const thing = {
+        id: this.id,
         name: this.name,
         type: this.type,
         protocol: this.protocol,
@@ -173,8 +181,26 @@ export default {
         getters: this.getters,
         location: this.location
       }
-      this.$http.post(process.env.API_URL + '/things', thing)
-        .then(res => router.push('/'))
+      if (this.id) {
+        this.$http.put(process.env.API_URL + '/things', thing)
+          .then(res => router.push('/'))
+      } else {
+        this.$http.post(process.env.API_URL + '/things', thing)
+          .then(res => router.push('/'))
+      }
+    },
+    getThing (id) {
+      this.$http.get(process.env.API_URL + '/things/' + id)
+        .then(res => res.data)
+        .then(res => {
+          this.id = res.id
+          this.name = res.name
+          this.type = res.type
+          this.location = res.location
+          this.protocol = res.protocol
+          this.actions = res.actions
+          this.getters = res.getters
+        })
     },
     addAction () {
       this.actions.push({ name: this.newAction, parameters: [] })

@@ -16,6 +16,11 @@ export default new Router({
       path: '/thing-form',
       name: 'marie-thing-form',
       component: ThingForm
+    },
+    {
+      path: '/thing-form/:id',
+      name: 'marie-thing-form-update',
+      component: ThingForm
     }
   ]
 })

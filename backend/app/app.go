@@ -45,6 +45,8 @@ func (a *App) initializeRoutes() {
 	s := r.PathPrefix("/api").Subrouter()
 	s.HandleFunc("/things", network.Post).Methods("POST")
 	s.HandleFunc("/things", network.GetAll).Methods("GET")
+	s.HandleFunc("/things/{id}", network.Get).Methods("GET")
+	s.HandleFunc("/things", network.Update).Methods("PUT")
 	s.HandleFunc("/things/{id}", network.Remove).Methods("DELETE")
 
 	a.Router = c.Handler(r)

@@ -60,6 +60,23 @@ func Read(id bson.ObjectId) (Thing, error) {
 	return res, nil
 }
 
+// Update a thing in database
+func Update(t Thing) error {
+	cfg := config.Load()
+
+	s := utils.GetSession()
+	defer s.Close()
+
+	c := s.DB(cfg.DbName).C(ThingCollectionName)
+
+	return c.Update(bson.M{"_id": t.ID}, bson.M{"getters": t.Getters,
+		"actions":  t.Actions,
+		"location": t.Location,
+		"protocol": t.Protocol,
+		"name":     t.Name,
+		"type":     t.Type})
+}
+
 // ReadGetterName return things that have a getter with the given name
 func ReadGetterName(name string) []Thing {
 	cfg := config.Load()

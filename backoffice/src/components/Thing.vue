@@ -46,6 +46,7 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
+      <router-link :to="{name: 'marie-thing-form-update', params: {id: thing.id}}"><v-btn flat>Update</v-btn></router-link>
       <v-layout row justify-center style="position: relative;">
         <v-dialog v-model="dialog" lazy absolute>
           <v-btn primary flat slot="activator">Delete</v-btn>
@@ -88,6 +89,10 @@ export default {
 <style scoped>
 h1, h2 {
   font-weight: 100;
+}
+
+a {
+  text-decoration: none;
 }
 
 </style>
