@@ -76,4 +76,5 @@ void messageReceived(String topic, String payload, char * bytes, unsigned int le
       on = false;
     }
   }
+  jsonBuffer.clear();
 }
