@@ -59,12 +59,12 @@ func AddSubscription(topic string) {
 
 // Do something on the thing
 func Do(id bson.ObjectId, name string, params map[string]interface{}) {
-	paramStr, err := json.Marshal(params)
-	if err != nil {
-		log.Println("Error while parsing JSON")
-		return
-	}
-	mqtt.Publish(name, []byte(paramStr), 0, false)
+	// paramStr, err := json.Marshal(params)
+	// if err != nil {
+	// 	log.Println("Error while parsing JSON")
+	// 	return
+	// }
+	mqtt.Publish(name, []byte(id.Hex()), 0, false)
 }
 
 func handleGetter(msg *packet.Message, err error) {

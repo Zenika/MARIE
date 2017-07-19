@@ -78,6 +78,23 @@ func ReadGetterName(name string) []Thing {
 	return things
 }
 
+// ReadActionName return things that have an action with the given name
+func ReadActionName(name string) []Thing {
+	cfg := config.Load()
+
+	s := utils.GetSession()
+	defer s.Close()
+
+	c := s.DB(cfg.DbName).C(ThingCollectionName)
+	things := []Thing{}
+
+	err := c.Pipe([]bson.M{{"$match": bson.M{"actions.name": name}}}).All(&things)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return things
+}
+
 // Delete the thing from the database
 func Delete(id bson.ObjectId) error {
 	cfg := config.Load()
