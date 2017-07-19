@@ -6,6 +6,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/Zenika/MARIE/backend/config"
+
 	"github.com/Zenika/MARIE/backend/utils"
 )
 
@@ -70,11 +71,12 @@ func Update(t Thing) error {
 	c := s.DB(cfg.DbName).C(ThingCollectionName)
 
 	return c.Update(bson.M{"_id": t.ID}, bson.M{"getters": t.Getters,
-		"actions":  t.Actions,
-		"location": t.Location,
-		"protocol": t.Protocol,
-		"name":     t.Name,
-		"type":     t.Type})
+		"actions":    t.Actions,
+		"location":   t.Location,
+		"protocol":   t.Protocol,
+		"name":       t.Name,
+		"type":       t.Type,
+		"macaddress": t.MacAddress})
 }
 
 // ReadGetterName return things that have a getter with the given name
@@ -93,6 +95,25 @@ func ReadGetterName(name string) []Thing {
 		log.Fatal(err)
 	}
 	return things
+}
+
+// ReadMacAddress return thing with mac address
+func ReadMacAddress(mac string) (Thing, error) {
+	cfg := config.Load()
+
+	s := utils.GetSession()
+	defer s.Close()
+
+	c := s.DB(cfg.DbName).C(ThingCollectionName)
+	t := Thing{}
+
+	err := c.Find(bson.M{"macaddress": mac}).One(t)
+
+	if err != nil {
+		return t, err
+	}
+
+	return t, nil
 }
 
 // ReadActionName return things that have an action with the given name

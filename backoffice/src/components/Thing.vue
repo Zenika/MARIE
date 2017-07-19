@@ -6,6 +6,7 @@
     <v-card-text>
       <div class="subheading">
         Id : {{thing.id}}<br />
+        MacAddress : {{thing.macaddress}}<br />
         Type : {{thing.type}}<br />
         Protocol : {{thing.protocol}}<br />
         <span v-if="thing.location">Location : {{thing.location}}</span>

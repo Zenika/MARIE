@@ -14,6 +14,7 @@ import (
 
 	"github.com/gomqtt/client"
 	"github.com/gomqtt/packet"
+	"gopkg.in/mgo.v2"
 )
 
 var mqtt *client.Client
@@ -34,7 +35,7 @@ func Init() {
 		log.Fatal(err)
 	}
 
-	mqtt.Callback = handleGetter
+	mqtt.Callback = handle
 
 	// Subscribe to all getters
 	things := thing.ReadAll()
@@ -49,6 +50,7 @@ func Init() {
 			}
 		}
 	}
+	mqtt.Subscribe("register", 0)
 	log.Println("MQTT client started")
 }
 
@@ -58,21 +60,42 @@ func AddSubscription(topic string) {
 }
 
 // Do something on the thing
-func Do(id bson.ObjectId, name string, params map[string]interface{}) {
+func Do(mac string, name string, params map[string]interface{}) {
 	// paramStr, err := json.Marshal(params)
 	// if err != nil {
 	// 	log.Println("Error while parsing JSON")
 	// 	return
 	// }
-	mqtt.Publish(name, []byte(id.Hex()), 0, false)
+	req := map[string]string{"macaddress": mac}
+	reqStr, err := json.Marshal(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	mqtt.Publish(name, []byte(reqStr), 0, false)
 }
 
-func handleGetter(msg *packet.Message, err error) {
+func handle(msg *packet.Message, err error) {
+	if msg.Topic == "register" {
+		var t = thing.Thing{}
+		err = json.Unmarshal(msg.Payload, &t)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, err := thing.ReadMacAddress(t.MacAddress)
+		if err == mgo.ErrNotFound {
+			t.ID = bson.NewObjectId()
+			t.Protocol = "MQTT"
+			thing.Create(t)
+		} else if err == nil {
+			log.Fatal(err)
+		}
+		return
+	}
 	var r = record.Record{}
 	err = json.Unmarshal(msg.Payload, &r)
 	if err != nil {
-		log.Println("Unmarshal error MQTT")
-		return
+		log.Fatal(err)
 	}
 	r.Name = msg.Topic
 	record.Save(r)

@@ -11,13 +11,14 @@ const (
 
 // Thing represents a connected object
 type Thing struct {
-	ID       bson.ObjectId `json:"id" bson:"_id"`
-	Type     string        `json:"type"`
-	Name     string        `json:"name"`
-	Location string        `json:"location"`
-	Protocol string        `json:"protocol"`
-	Actions  []Action      `json:"actions"`
-	Getters  []Getter      `json:"getters"`
+	ID         bson.ObjectId `json:"id" bson:"_id"`
+	MacAddress string        `json:"macaddress"`
+	Type       string        `json:"type"`
+	Name       string        `json:"name"`
+	Location   string        `json:"location"`
+	Protocol   string        `json:"protocol"`
+	Actions    []Action      `json:"actions"`
+	Getters    []Getter      `json:"getters"`
 }
 
 // Action represents what a thing can do

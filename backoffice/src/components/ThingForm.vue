@@ -9,6 +9,12 @@
         single-line
       ></v-text-field>
       <v-text-field
+        label="Mac Address"
+        value=""
+        v-model="macaddress"
+        single-line
+      ></v-text-field>   
+      <v-text-field
         label="Type"
         value=""
         v-model="type"
@@ -139,6 +145,7 @@ export default {
       newParamType: '',
       newGetterName: '',
       newGetterType: '',
+      macaddress: '',
       getters: [],
       protocols: [ 'MQTT' ],
       rules: {
@@ -161,6 +168,7 @@ export default {
         this.location = ''
         this.actions = []
         this.getters = []
+        this.macaddress = ''
         this.newParamName = ''
         this.newParamType = ''
         this.newGetterName = ''
@@ -196,7 +204,8 @@ export default {
         protocol: this.protocol,
         actions: this.actions,
         getters: this.getters,
-        location: this.location
+        location: this.location,
+        macaddress: this.macaddress
       }
       if (this.id) {
         this.$http.put(process.env.API_URL + '/things', thing)
@@ -217,6 +226,7 @@ export default {
           this.protocol = res.protocol
           this.actions = res.actions
           this.getters = res.getters
+          this.macaddress = res.macaddress
         })
     },
     addAction () {

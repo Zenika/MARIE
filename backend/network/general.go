@@ -1,9 +1,12 @@
 package network
 
 import (
+	"log"
+
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/Zenika/MARIE/backend/mqtt"
 	"github.com/Zenika/MARIE/backend/thing"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // Do something on all things that match action and room
@@ -22,11 +25,11 @@ func Do(thingType string, action string, params map[string]interface{}, room str
 func DoID(id bson.ObjectId, action string, params map[string]interface{}) {
 	t, err := thing.Read(id)
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
 	switch t.Protocol {
 	case "MQTT":
-		mqtt.Do(id, action, params)
+		mqtt.Do(t.MacAddress, action, params)
 		break
 	}
 }
