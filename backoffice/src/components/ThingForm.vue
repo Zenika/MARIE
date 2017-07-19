@@ -151,6 +151,23 @@ export default {
       this.getThing(this.$route.params.id)
     }
   },
+  watch: {
+    '$route.params.id': function (id) {
+      if (this.$route.params.id === undefined) {
+        this.id = ''
+        this.name = ''
+        this.type = ''
+        this.protocol = ''
+        this.location = ''
+        this.actions = []
+        this.getters = []
+        this.newParamName = ''
+        this.newParamType = ''
+        this.newGetterName = ''
+        this.newGetterType = ''
+      }
+    }
+  },
   methods: {
     create () {
       if (!this.name || !this.type || !this.protocol) {
