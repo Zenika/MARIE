@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Zenika/MARIE/backend/mqtt"
 	"github.com/Zenika/MARIE/backend/record"
 	"github.com/Zenika/MARIE/backend/thing"
 	"github.com/gorilla/mux"
@@ -24,12 +23,12 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	thing.Create(t)
 
 	for _, g := range t.Getters {
-		mqtt.AddSubscription(g.Name)
+		mqttConn.AddSubscription(g.Name)
 	}
 }
 
-// Get a thing
-func Get(w http.ResponseWriter, r *http.Request) {
+// GetThing get a thing
+func GetThing(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	t, err := thing.Read(bson.ObjectIdHex(vars["id"]))
 

@@ -4,11 +4,13 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import axios from 'axios'
+import VueNativeSock from 'vue-native-websocket'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.js'
 import 'vuetify/dist/vuetify.min.css'
 
 Vue.use(Vuetify)
+Vue.use(VueNativeSock, process.env.WS_URL, { format: 'json' })
 Vue.prototype.$http = axios
 Vue.config.productionTip = false
 

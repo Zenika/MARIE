@@ -4,9 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Zenika/MARIE/backend/mqtt"
 	"github.com/Zenika/MARIE/backend/network"
-	"github.com/Zenika/MARIE/backend/websocket"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -19,7 +17,7 @@ type App struct {
 // Initialize the application
 func (a *App) Initialize() {
 	a.initializeRoutes()
-	mqtt.Init()
+	network.InitMQTT()
 }
 
 // Run the application
@@ -39,13 +37,14 @@ func (a *App) initializeRoutes() {
 	r := mux.NewRouter()
 
 	// Websockets
-	r.HandleFunc("/ws", websocket.Handle)
+	network.StartHub()
+	r.HandleFunc("/ws", network.Handle)
 
 	// MARIE api
 	s := r.PathPrefix("/api").Subrouter()
 	s.HandleFunc("/things", network.Post).Methods("POST")
 	s.HandleFunc("/things", network.GetAll).Methods("GET")
-	s.HandleFunc("/things/{id}", network.Get).Methods("GET")
+	s.HandleFunc("/things/{id}", network.GetThing).Methods("GET")
 	s.HandleFunc("/things", network.Update).Methods("PUT")
 	s.HandleFunc("/things/{id}", network.Remove).Methods("DELETE")
 

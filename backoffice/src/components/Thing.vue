@@ -12,7 +12,7 @@
         <span v-if="thing.location">Location : {{thing.location}}</span>
       </div>
       <v-list>
-        <v-list-group v-if="thing.actions.length">
+        <v-list-group v-if="thing.actions && thing.actions.length">
           <v-list-tile slot="item">
             <v-list-tile-content>
              Actions
@@ -28,7 +28,7 @@
           </v-list-tile>
         </v-list-group>
 
-        <v-list-group v-if="thing.getters.length">
+        <v-list-group v-if="thing.getters && thing.getters.length">
           <v-list-tile slot="item">
             <v-list-tile-content>
              Getters

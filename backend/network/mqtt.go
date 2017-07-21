@@ -1,8 +1,9 @@
-package mqtt
+package network
 
 import (
 	"encoding/json"
 	"log"
+	"regexp"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
@@ -17,14 +18,20 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-var mqtt *client.Client
+type mqttConnection struct {
+	mqtt *client.Client
+	get  chan string
+}
 
-// Init MQTT client
-func Init() {
+var mqttConn mqttConnection
+
+// InitMQTT client
+func InitMQTT() {
+
 	cfg := config.Load()
 
 	// Create mqtt client and connect
-	mqtt = client.New()
+	mqtt := client.New()
 	mqttCfg := client.NewConfigWithClientID(cfg.MQTTUrl, cfg.MQTTId)
 	connectFuture, err := mqtt.Connect(mqttCfg)
 	if err != nil {
@@ -43,7 +50,13 @@ func Init() {
 	for _, t := range things {
 		if t.Protocol == "MQTT" {
 			for _, v := range t.Getters {
+				// Subscribe to stored values
 				_, err = mqtt.Subscribe(v.Name, 0)
+				if err != nil {
+					log.Fatal(err)
+				}
+				// Subscribe to real time values
+				_, err = mqtt.Subscribe(v.Name+"_value", 0)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -51,29 +64,57 @@ func Init() {
 		}
 	}
 	mqtt.Subscribe("register", 0)
+	mqttConn = mqttConnection{
+		get:  make(chan string),
+		mqtt: mqtt,
+	}
 	log.Println("MQTT client started")
 }
 
 // AddSubscription add subscribtion on a specific topic
-func AddSubscription(topic string) {
-	mqtt.Subscribe(topic, 0)
+func (c mqttConnection) AddSubscription(topic string) {
+	c.mqtt.Subscribe(topic, 0)
 }
 
-// Do something on the thing
-func Do(mac string, name string, params map[string]interface{}) {
-	// paramStr, err := json.Marshal(params)
-	// if err != nil {
-	// 	log.Println("Error while parsing JSON")
-	// 	return
-	// }
+// DoMQTT something on the thing
+func (c mqttConnection) Do(mac string, name string, params map[string]interface{}) {
 	req := map[string]string{"macaddress": mac}
 	reqStr, err := json.Marshal(req)
 	if err != nil {
 		log.Fatal(err)
 	}
-	mqtt.Publish(name, []byte(reqStr), 0, false)
+	c.mqtt.Publish(name, []byte(reqStr), 0, false)
 }
 
+// GetMQTT from a thing
+func (c mqttConnection) Get(id string, name string, macaddress string) {
+	go getRoutine(c.get, id)
+
+	req := map[string]string{"macaddress": macaddress}
+	reqStr, err := json.Marshal(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.mqtt.Publish("get_"+name, []byte(reqStr), 0, false)
+}
+
+// Routine that  broadcast the results of getters
+func getRoutine(c chan string, id string) {
+	message := <-c
+	var res map[string]interface{}
+	err := json.Unmarshal([]byte(message), &res)
+	if err != nil {
+		log.Fatal(err)
+	}
+	res["id"] = id
+	byt, err := json.Marshal(res)
+	if err != nil {
+		log.Fatal(byt)
+	}
+	hub.broadcast <- byt
+}
+
+// Handle the request on mqtt
 func handle(msg *packet.Message, err error) {
 	if msg.Topic == "register" {
 		var t = thing.Thing{}
@@ -87,9 +128,19 @@ func handle(msg *packet.Message, err error) {
 			t.ID = bson.NewObjectId()
 			t.Protocol = "MQTT"
 			thing.Create(t)
+			res, err := json.Marshal(t)
+			if err != nil {
+				log.Fatal(err)
+			}
+			Broadcast(res)
 		} else if err == nil {
 			log.Fatal(err)
 		}
+		return
+	}
+	match, _ := regexp.MatchString("_value$", msg.Topic)
+	if match {
+		mqttConn.get <- string(msg.Payload)
 		return
 	}
 	var r = record.Record{}
