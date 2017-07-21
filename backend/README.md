@@ -21,5 +21,7 @@ realize run
 ## Build
 
 ```shell
-env GOOS=linux GOARCH=x86 go build -o ./bin/MARIE
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./bin/MARIE .
 ```
+
+If you want to use this backend inside a docker image, you have to set certificates into /etc/ssl/certs/ca-certificates.crt for API.ai SSL.
