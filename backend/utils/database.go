@@ -13,6 +13,7 @@ var dbSession *mgo.Session
 // GetSession creates the mongodb session and returns the singleton
 func GetSession() *mgo.Session {
 	if dbSession == nil {
+		log.Println("Creating database session")
 		cfg := config.Load()
 
 		// Connection
@@ -23,7 +24,7 @@ func GetSession() *mgo.Session {
 
 		// Assignment so that dbSession is used
 		dbSession = dbS
-		log.Println("MongoDB Session created ")
+		log.Println("Database session created ")
 	}
 	return dbSession.Copy()
 }

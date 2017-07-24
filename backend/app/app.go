@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Zenika/MARIE/backend/network"
+	"github.com/Zenika/MARIE/backend/utils"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -17,6 +18,9 @@ type App struct {
 // Initialize the application
 func (a *App) Initialize() {
 	a.initializeRoutes()
+	s := utils.GetSession()
+	defer s.Close()
+
 	network.InitMQTT()
 }
 

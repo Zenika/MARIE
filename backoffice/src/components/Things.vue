@@ -1,8 +1,8 @@
 <template>
   <div class="marie-things">
-    <v-layout>
-      <v-flex xs3>
-        <marie-thing :thing="thing" v-for="thing in things" :key="thing.id" @delete="deleteThing(thing)"></marie-thing>
+    <v-layout row wrap>
+      <v-flex xs3 v-for="thing in things" :key="thing.id" >
+        <marie-thing :thing="thing" @delete="deleteThing(thing)"></marie-thing>
       </v-flex>
     </v-layout>
   </div>
@@ -51,5 +51,9 @@ export default {
 <style scoped>
 h1, h2 {
   font-weight: 100;
+}
+
+flex {
+  display: inline-block;
 }
 </style>
