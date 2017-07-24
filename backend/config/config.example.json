@@ -2,6 +2,6 @@
   "apiai-token": "API-AI-TOKEN",
   "database-name": "MARIE",
   "database-url": "mongodb://mongodb",
-  "mqtt-url": "MQTT-URL",
+  "mqtt-url": "mqtt://MQTT-URL",
   "mqtt-id": "MQTT-ID"
 }

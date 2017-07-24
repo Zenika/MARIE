@@ -12,7 +12,7 @@ StaticJsonBuffer<200> jsonBuffer;
 
 void setup () {
   Bridge.begin();
-  client.begin("broker.shiftr.io", net);
+  client.begin("10.0.10.3", 1883, net);
   pinMode(13, OUTPUT);
   getMACAddress();
   connect();
@@ -26,7 +26,7 @@ void getMACAddress () {
   
   macAddr = "";
   
-  while (p.available() > 0) {
+  while (p.available() > 0) { 
     char c = p.read();
     if (c > 10) {
       macAddr.concat(c); 
@@ -35,13 +35,14 @@ void getMACAddress () {
 }
 
 void connect () {
-  while (!client.connect("marie_light", "4eabe27f", "c5e68ac27238e781")) {
+  while (!client.connect("marie_light")) {
   }
 
-  client.subscribe("/on");
-  client.subscribe("/off");
-  client.publish("/register", String("{\"macaddress\":\"" + macAddr + "\","
+  client.subscribe("on");
+  client.subscribe("off");
+  client.publish("register", String("{\"macaddress\":\"" + macAddr + "\","
                                      "\"location\": \"couloir\","
+                                     "\"type\": \"light\","
                                      "\"actions\":["
                                      "{\"name\":\"on\"},"
                                      "{\"name\":\"off\"}"
@@ -68,9 +69,9 @@ void messageReceived(String topic, String payload, char * bytes, unsigned int le
   JsonObject& root = jsonBuffer.parseObject(payload);
   String requiredMacAddress = root["macaddress"];
   if (requiredMacAddress == macAddr) {
-    if (topic == "/on") {
+    if (topic == "on") {
       on = true;
-    } else if (topic == "/off") {
+    } else if (topic == "off") {
       on = false;
     }
   }

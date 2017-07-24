@@ -1,5 +1,5 @@
 #include <MQTTClient.h>
-#include <BridgeClient.h>
+#include <BridgeClient.h> 
 #include <Process.h>
 #include <ArduinoJson.h>
 #include <Adafruit_Sensor.h>
@@ -16,7 +16,7 @@ DHT dht(DHTPIN, DHTTYPE);
 
 void setup () {
   Bridge.begin();
-  client.begin("broker.shiftr.io", net);
+  client.begin("10.0.10.3", 1883, net);
   getMACAddress();
     
   dht.begin();
@@ -39,12 +39,12 @@ void getMACAddress () {
 }
 
 void connect () {
-  while (!client.connect("marie_env", "4eabe27f", "c5e68ac27238e781")) {
+  while (!client.connect("marie_env")) {
   }
 
-  client.subscribe("/get_temperature");
-  client.subscribe("/get_humidity");
-  client.publish("/register", String("{\"macaddress\":\"" + macAddr + "\","
+  client.subscribe("get_temperature");
+  client.subscribe("get_humidity");
+  client.publish("register", String("{\"macaddress\":\"" + macAddr + "\","
                                      "\"type\": \"environment\","
                                      "\"getters\":["
                                      "{\"name\":\"temperature\","
@@ -65,20 +65,20 @@ void messageReceived(String topic, String payload, char * bytes, unsigned int le
   JsonObject& root = jsonBuffer.parseObject(payload);
   String requiredMacAddress = root["macaddress"];
   if (requiredMacAddress == macAddr) {
-    if (topic == "/get_temperature") {
+    if (topic == "get_temperature") {
       float t = dht.readTemperature();
       if (isnan(t)) {
-        client.publish("/temperature_value", "{\"error\":\"NaN\"}");
+        client.publish("temperature_value", "{\"error\":\"NaN\"}");
       } else {
-        client.publish("/temperature_value", "{\"value\": " + String(t) + "}");
+        client.publish("temperature_value", "{\"value\": " + String(t) + "}");
       }
 
     } else {
       float h = dht.readHumidity();
       if (isnan(h)) {
-        client.publish("/humidity_value", "{\"error\":\"NaN\"}");
+        client.publish("humidity_value", "{\"error\":\"NaN\"}");
       } else {
-        client.publish("/humidity_value", "{\"value\": " + String(h) + "}");
+        client.publish("humidity_value", "{\"value\": " + String(h) + "}");
       }
     }
 

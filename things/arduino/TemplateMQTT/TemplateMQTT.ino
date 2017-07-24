@@ -11,7 +11,7 @@ StaticJsonBuffer<200> jsonBuffer;
 
 void setup () {
   Bridge.begin();
-  client.begin("broker.shiftr.io", net);
+  client.begin("10.0.10.3", 1883, net);
   getMACAddress();
   connect();
 }
@@ -32,10 +32,10 @@ void getMACAddress () {
 }
 
 void connect () {
-  while (!client.connect("marie_thing", "4eabe27f", "c5e68ac27238e781")) {
+  while (!client.connect("marie_thing")) {
   }
   
-  client.publish("/register", String("{\"macaddress\":\"" + macAddr + "\","
+  client.publish("register", String("{\"macaddress\":\"" + macAddr + "\","
                                      "\"location\": \"template\","
                                      "\"type\": \"template\","
                                      "\"actions\":["
