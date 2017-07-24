@@ -36,14 +36,12 @@ void getMACAddress () {
 
 void connect () {
   while (!client.connect("marie_light", "4eabe27f", "c5e68ac27238e781")) {
-    Serial.print(".");
   }
 
   client.subscribe("/on");
   client.subscribe("/off");
   client.publish("/register", String("{\"macaddress\":\"" + macAddr + "\","
                                      "\"location\": \"couloir\","
-                                     "\"type\": \"light\","
                                      "\"actions\":["
                                      "{\"name\":\"on\"},"
                                      "{\"name\":\"off\"}"

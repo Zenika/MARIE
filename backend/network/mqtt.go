@@ -37,7 +37,7 @@ func InitMQTT() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = connectFuture.Wait(1 * time.Second)
+	err = connectFuture.Wait(5 * time.Second)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,6 +74,7 @@ func InitMQTT() {
 // AddSubscription add subscribtion on a specific topic
 func (c mqttConnection) AddSubscription(topic string) {
 	c.mqtt.Subscribe(topic, 0)
+	c.mqtt.Subscribe(topic+"_value", 0)
 }
 
 // DoMQTT something on the thing

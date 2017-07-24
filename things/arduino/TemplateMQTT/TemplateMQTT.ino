@@ -33,7 +33,6 @@ void getMACAddress () {
 
 void connect () {
   while (!client.connect("marie_thing", "4eabe27f", "c5e68ac27238e781")) {
-    Serial.print(".");
   }
   
   client.publish("/register", String("{\"macaddress\":\"" + macAddr + "\","
