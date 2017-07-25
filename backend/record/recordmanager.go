@@ -12,13 +12,17 @@ import (
 )
 
 // MeanLast of every things for a specific parameter
-func MeanLast(name string, l string) float64 {
+func MeanLast(name string, l string) (float64, error) {
 	cfg := config.Load()
 
 	s := utils.GetSession()
 	defer s.Close()
 
-	things := thing.ReadGetterName(name)
+	things, err := thing.ReadGetterName(name)
+
+	if err != nil {
+		return 0, err
+	}
 
 	c := s.DB(cfg.DbName).C(CollectionName)
 	r := Record{}
@@ -31,7 +35,8 @@ func MeanLast(name string, l string) float64 {
 		if err == mgo.ErrNotFound {
 			continue
 		} else if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 		if l == "" {
 			sum = sum + r.Value.(float64)
@@ -43,7 +48,7 @@ func MeanLast(name string, l string) float64 {
 			}
 		}
 	}
-	return sum / n
+	return sum / n, nil
 }
 
 // Save save a thing record to the database with verification

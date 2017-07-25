@@ -2,6 +2,7 @@ package network
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/gorilla/websocket"
 )
@@ -49,10 +50,11 @@ func (c *Client) read() {
 		}
 		var req = Request{}
 		if err := json.Unmarshal(p, &req); err != nil {
-			panic(err)
-		}
-		if req.Type == "speech" {
-			c.ws.WriteJSON(Analyze(req.Message))
+			log.Println(err)
+		} else {
+			if req.Type == "speech" {
+				c.ws.WriteJSON(Analyze(req.Message))
+			}
 		}
 	}
 }

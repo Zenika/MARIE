@@ -1,8 +1,6 @@
 package thing
 
 import (
-	"log"
-
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/Zenika/MARIE/backend/config"
@@ -11,35 +9,29 @@ import (
 )
 
 // Create a new thing and add it to the database
-func Create(t Thing) {
+func Create(t Thing) error {
 	cfg := config.Load()
 
 	s := utils.GetSession()
 	defer s.Close()
 
-	c := s.DB(cfg.DbName).C(ThingCollectionName)
-	err := c.Insert(t)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	c := s.DB(cfg.DbName).C(CollectionName)
+	return c.Insert(t)
 }
 
 // ReadAll things in database
-func ReadAll() []Thing {
+func ReadAll() ([]Thing, error) {
 	cfg := config.Load()
+
 	s := utils.GetSession()
 	defer s.Close()
 
 	var things []Thing
 
-	c := s.DB(cfg.DbName).C(ThingCollectionName)
+	c := s.DB(cfg.DbName).C(CollectionName)
 	err := c.Find(bson.M{}).All(&things)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	return things
+	return things, err
 }
 
 // Read a thing in the database with its id
@@ -49,16 +41,12 @@ func Read(id bson.ObjectId) (Thing, error) {
 	s := utils.GetSession()
 	defer s.Close()
 
-	c := s.DB(cfg.DbName).C(ThingCollectionName)
+	c := s.DB(cfg.DbName).C(CollectionName)
 
 	res := Thing{}
 	err := c.FindId(id).One(&res)
 
-	if err != nil {
-		return res, err
-	}
-
-	return res, nil
+	return res, err
 }
 
 // Update a thing in database
@@ -68,7 +56,7 @@ func Update(t Thing) error {
 	s := utils.GetSession()
 	defer s.Close()
 
-	c := s.DB(cfg.DbName).C(ThingCollectionName)
+	c := s.DB(cfg.DbName).C(CollectionName)
 
 	return c.Update(bson.M{"_id": t.ID}, bson.M{"getters": t.Getters,
 		"actions":    t.Actions,
@@ -80,21 +68,18 @@ func Update(t Thing) error {
 }
 
 // ReadGetterName return things that have a getter with the given name
-func ReadGetterName(name string) []Thing {
+func ReadGetterName(name string) ([]Thing, error) {
 	cfg := config.Load()
 
 	s := utils.GetSession()
 	defer s.Close()
 
 	// Select all things with this parameter
-	c := s.DB(cfg.DbName).C(ThingCollectionName)
+	c := s.DB(cfg.DbName).C(CollectionName)
 	things := []Thing{}
 
 	err := c.Pipe([]bson.M{{"$match": bson.M{"getters.name": name}}}).All(&things)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return things
+	return things, err
 }
 
 // ReadMacAddress return thing with mac address
@@ -104,33 +89,25 @@ func ReadMacAddress(mac string) (Thing, error) {
 	s := utils.GetSession()
 	defer s.Close()
 
-	c := s.DB(cfg.DbName).C(ThingCollectionName)
+	c := s.DB(cfg.DbName).C(CollectionName)
 	t := Thing{}
 
 	err := c.Find(bson.M{"macaddress": mac}).One(t)
-
-	if err != nil {
-		return t, err
-	}
-
-	return t, nil
+	return t, err
 }
 
 // ReadActionName return things that have an action with the given name
-func ReadActionName(name string) []Thing {
+func ReadActionName(name string) ([]Thing, error) {
 	cfg := config.Load()
 
 	s := utils.GetSession()
 	defer s.Close()
 
-	c := s.DB(cfg.DbName).C(ThingCollectionName)
+	c := s.DB(cfg.DbName).C(CollectionName)
 	things := []Thing{}
 
 	err := c.Pipe([]bson.M{{"$match": bson.M{"actions.name": name}}}).All(&things)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return things
+	return things, err
 }
 
 // Delete the thing from the database
@@ -140,7 +117,7 @@ func Delete(id bson.ObjectId) error {
 	s := utils.GetSession()
 	defer s.Close()
 
-	c := s.DB(cfg.DbName).C(ThingCollectionName)
+	c := s.DB(cfg.DbName).C(CollectionName)
 
 	return c.RemoveId(id)
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/Zenika/MARIE/backend/thing"
 	"github.com/gorilla/mux"
 
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -17,7 +18,9 @@ import (
 func Post(w http.ResponseWriter, r *http.Request) {
 	t, err := parseThing(r.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		w.WriteHeader(500)
+		return
 	}
 	t.ID = bson.NewObjectId()
 	thing.Create(t)
@@ -30,26 +33,43 @@ func Post(w http.ResponseWriter, r *http.Request) {
 // GetThing get a thing
 func GetThing(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	if !bson.IsObjectIdHex(vars["id"]) {
+		http.Error(w, "Not Mongo Id", http.StatusBadRequest)
+		return
+	}
 	t, err := thing.Read(bson.ObjectIdHex(vars["id"]))
 
-	if err != nil {
-		log.Fatal(err)
+	if err == mgo.ErrNotFound {
+		http.NotFound(w, r)
+		return
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	res, err := json.Marshal(t)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	w.Write(res)
 }
 
 // GetAll things and send it
 func GetAll(w http.ResponseWriter, r *http.Request) {
-	things := thing.ReadAll()
+	things, err := thing.ReadAll()
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	res, err := json.Marshal(things)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	w.Write(res)
 }
@@ -58,12 +78,16 @@ func GetAll(w http.ResponseWriter, r *http.Request) {
 func Update(w http.ResponseWriter, r *http.Request) {
 	t, err := parseThing(r.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	err = thing.Update(t)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
