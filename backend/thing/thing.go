@@ -13,6 +13,7 @@ const (
 type Thing struct {
 	ID         bson.ObjectId `json:"id" bson:"_id"`
 	MacAddress string        `json:"macaddress"`
+	IPAddress  string        `json:"ipaddress"`
 	Type       string        `json:"type"`
 	Name       string        `json:"name"`
 	Location   string        `json:"location"`

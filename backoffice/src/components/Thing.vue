@@ -7,9 +7,10 @@
       <div class="subheading">
         Id : {{thing.id}}<br />
         MacAddress : {{thing.macaddress}}<br />
+        IPAddress : {{thing.ipaddress}}<br />
         Type : {{thing.type}}<br />
         Protocol : {{thing.protocol}}<br />
-        <span v-if="thing.location">Location : {{thing.location}}</span>
+        Location : {{thing.location}}
       </div>
       <v-list>
         <v-list-group v-if="thing.actions && thing.actions.length">

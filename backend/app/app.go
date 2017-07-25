@@ -50,6 +50,7 @@ func (a *App) initializeRoutes() {
 	s.HandleFunc("/things/{id}", network.GetThing).Methods("GET")
 	s.HandleFunc("/things", network.Update).Methods("PUT")
 	s.HandleFunc("/things/{id}", network.Remove).Methods("DELETE")
+	s.HandleFunc("/things/register", network.Register).Methods("POST")
 
 	a.Router = c.Handler(r)
 	log.Println("HTTP and WS servers started")

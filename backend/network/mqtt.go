@@ -6,8 +6,6 @@ import (
 	"regexp"
 	"time"
 
-	"gopkg.in/mgo.v2/bson"
-
 	"github.com/Zenika/MARIE/backend/config"
 	"github.com/Zenika/MARIE/backend/record"
 
@@ -15,7 +13,6 @@ import (
 
 	"github.com/gomqtt/client"
 	"github.com/gomqtt/packet"
-	"gopkg.in/mgo.v2"
 )
 
 type mqttConnection struct {
@@ -126,32 +123,32 @@ func getRoutine(c chan string, id string) {
 // Handle the request on mqtt
 func handle(msg *packet.Message, err error) {
 	if msg.Topic == "register" {
+		// Read the thing in the payload
 		var t = thing.Thing{}
 		err = json.Unmarshal(msg.Payload, &t)
 		if err != nil {
 			log.Println(err)
 			return
 		}
+		// Add Protocol
+		t.Protocol = "MQTT"
 
-		_, err := thing.ReadMacAddress(t.MacAddress)
-		if err == mgo.ErrNotFound {
-			// Add missing attributes
-			t.ID = bson.NewObjectId()
-			t.Protocol = "MQTT"
-
-			// Insert thing in database
-			thing.Create(t)
-			res, err := json.Marshal(t)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-			// Broadcast the thing creation
-			Broadcast(res)
-		} else if err != nil {
+		//Register thing
+		err := thing.Register(t)
+		if err != nil {
 			log.Println(err)
+			return
 		}
+
+		// Transform to JSON
+		res, err := json.Marshal(t)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		// Broadcast the thing creation
+		Broadcast(res)
 		return
 	}
 

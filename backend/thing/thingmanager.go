@@ -4,6 +4,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/Zenika/MARIE/backend/utils"
+	"gopkg.in/mgo.v2"
 )
 
 // Create a new thing and add it to the database
@@ -48,7 +49,8 @@ func Update(t Thing) error {
 		"protocol":   t.Protocol,
 		"name":       t.Name,
 		"type":       t.Type,
-		"macaddress": t.MacAddress})
+		"macaddress": t.MacAddress,
+		"ipaddress":  t.IPAddress})
 }
 
 // ReadGetterName return things that have a getter with the given name
@@ -91,4 +93,16 @@ func Delete(id bson.ObjectId) error {
 	defer s.Close()
 
 	return c.RemoveId(id)
+}
+
+// Register a new Thing in the base with mac address
+func Register(t Thing) error {
+	_, err := ReadMacAddress(t.MacAddress)
+	t.ID = bson.NewObjectId()
+
+	if err == mgo.ErrNotFound {
+		return Create(t)
+	}
+
+	return err
 }

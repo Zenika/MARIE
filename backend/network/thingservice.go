@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/Zenika/MARIE/backend/record"
 	"github.com/Zenika/MARIE/backend/thing"
@@ -99,6 +100,20 @@ func Remove(w http.ResponseWriter, r *http.Request) {
 	thing.Delete(bson.ObjectIdHex(vars["id"]))
 }
 
+// Register a thing in the database with its MAC address
+func Register(w http.ResponseWriter, r *http.Request) {
+	t, err := parseThing(r.Body)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println("Pas bon")
+		return
+	}
+	t.Protocol = "HTTP"
+	t.IPAddress = getIPFromRemoteAddr(r.RemoteAddr)
+	thing.Register(t)
+}
+
 func parseThing(r io.ReadCloser) (thing.Thing, error) {
 	dec := json.NewDecoder(r)
 	var t thing.Thing
@@ -110,4 +125,9 @@ func parseThing(r io.ReadCloser) (thing.Thing, error) {
 		}
 	}
 	return t, nil
+}
+
+func getIPFromRemoteAddr(ra string) string {
+	ip := strings.Split(ra, ":")
+	return ip[0]
 }

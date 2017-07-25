@@ -13,6 +13,12 @@
         value=""
         v-model="macaddress"
         single-line
+      ></v-text-field>
+      <v-text-field
+        label="IP Address"
+        value=""
+        v-model="ipaddress"
+        single-line
       ></v-text-field>   
       <v-text-field
         label="Type"
@@ -146,8 +152,9 @@ export default {
       newGetterName: '',
       newGetterType: '',
       macaddress: '',
+      ipaddress: '',
       getters: [],
-      protocols: [ 'MQTT' ],
+      protocols: [ 'MQTT', 'HTTP' ],
       rules: {
         required: (value) => !!value || 'Required.'
       }
@@ -169,6 +176,7 @@ export default {
         this.actions = []
         this.getters = []
         this.macaddress = ''
+        this.ipaddress = ''
         this.newParamName = ''
         this.newParamType = ''
         this.newGetterName = ''
@@ -205,7 +213,8 @@ export default {
         actions: this.actions,
         getters: this.getters,
         location: this.location,
-        macaddress: this.macaddress
+        macaddress: this.macaddress,
+        ipaddress: this.ipaddress
       }
       if (this.id) {
         this.$http.put(process.env.API_URL + '/things', thing)
@@ -227,6 +236,7 @@ export default {
           this.actions = res.actions
           this.getters = res.getters
           this.macaddress = res.macaddress
+          this.ipaddress = res.ipaddress
         })
     },
     addAction () {
