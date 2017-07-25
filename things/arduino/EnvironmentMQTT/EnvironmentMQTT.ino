@@ -8,6 +8,8 @@
 #define DHTTYPE DHT22
 #define DHTPIN 5
 
+#define PHOTOPIN A1
+
 BridgeClient net;
 MQTTClient client;
 String macAddr;
@@ -18,7 +20,8 @@ void setup () {
   Bridge.begin();
   client.begin("10.0.10.3", 1883, net);
   getMACAddress();
-    
+
+  pinMode(PHOTOPIN, INPUT);
   dht.begin();
   connect();
 }
@@ -44,6 +47,7 @@ void connect () {
 
   client.subscribe("get_temperature");
   client.subscribe("get_humidity");
+  client.subscribe("get_luminosity");
   client.publish("register", String("{\"macaddress\":\"" + macAddr + "\","
                                      "\"type\": \"environment\","
                                      "\"getters\":["
@@ -64,6 +68,7 @@ void loop() {
 void messageReceived(String topic, String payload, char * bytes, unsigned int length) {
   JsonObject& root = jsonBuffer.parseObject(payload);
   String requiredMacAddress = root["macaddress"];
+  
   if (requiredMacAddress == macAddr) {
     if (topic == "get_temperature") {
       float t = dht.readTemperature();
@@ -73,16 +78,21 @@ void messageReceived(String topic, String payload, char * bytes, unsigned int le
         client.publish("temperature_value", "{\"value\": " + String(t) + "}");
       }
 
-    } else {
+    } else if (topic == "get_humidity") {
       float h = dht.readHumidity();
       if (isnan(h)) {
         client.publish("humidity_value", "{\"error\":\"NaN\"}");
       } else {
         client.publish("humidity_value", "{\"value\": " + String(h) + "}");
       }
+    } else if (topic == "get_luminosity") {
+      int l = analogRead(PHOTOPIN);
+      if (isnan(l)) {
+        client.publish("luminosity_value", "{\"error\":\"NaN\"}");
+      } else {
+        client.publish("luminosity_value", "{\"value\": " + String(l) + "}");
+      }
     }
-
-
   }
   jsonBuffer.clear();
 }
