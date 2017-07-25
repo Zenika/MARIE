@@ -18,8 +18,7 @@ type App struct {
 // Initialize the application
 func (a *App) Initialize() {
 	a.initializeRoutes()
-	s := utils.GetSession()
-	defer s.Close()
+	utils.InitDatabase()
 
 	network.InitMQTT()
 }

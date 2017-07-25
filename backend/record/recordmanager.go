@@ -4,7 +4,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/Zenika/MARIE/backend/config"
 	"github.com/Zenika/MARIE/backend/thing"
 	"github.com/Zenika/MARIE/backend/utils"
 	"gopkg.in/mgo.v2"
@@ -13,18 +12,14 @@ import (
 
 // MeanLast of every things for a specific parameter
 func MeanLast(name string, l string) (float64, error) {
-	cfg := config.Load()
-
-	s := utils.GetSession()
-	defer s.Close()
-
 	things, err := thing.ReadGetterName(name)
 
 	if err != nil {
 		return 0, err
 	}
+	c, s := utils.Database(CollectionName)
+	defer s.Close()
 
-	c := s.DB(cfg.DbName).C(CollectionName)
 	r := Record{}
 	sum := 0.0
 	n := 0.0
@@ -53,9 +48,7 @@ func MeanLast(name string, l string) (float64, error) {
 
 // Save save a thing record to the database with verification
 func Save(r Record) error {
-	cfg := config.Load()
-
-	s := utils.GetSession()
+	c, s := utils.Database(CollectionName)
 	defer s.Close()
 
 	_, err := thing.Read(r.ThingID)
@@ -64,7 +57,6 @@ func Save(r Record) error {
 		return err
 	}
 
-	c := s.DB(cfg.DbName).C(CollectionName)
 	r.Date = time.Now()
 	err = c.Insert(&r)
 
@@ -73,12 +65,9 @@ func Save(r Record) error {
 
 // DeleteThingID delete the records that have a specific thing id
 func DeleteThingID(id bson.ObjectId) error {
-	cfg := config.Load()
-
-	s := utils.GetSession()
+	c, s := utils.Database(CollectionName)
 	defer s.Close()
 
-	c := s.DB(cfg.DbName).C(CollectionName)
 	err := c.Remove(bson.M{"thing_id": id})
 	return err
 }

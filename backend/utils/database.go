@@ -10,8 +10,8 @@ import (
 
 var dbSession *mgo.Session
 
-// GetSession creates the mongodb session and returns the singleton
-func GetSession() *mgo.Session {
+// InitDatabase creates the mongodb session and returns the singleton
+func InitDatabase() {
 	if dbSession == nil {
 		log.Println("Creating database session")
 		cfg := config.Load()
@@ -26,5 +26,13 @@ func GetSession() *mgo.Session {
 		dbSession = dbS
 		log.Println("Database session created ")
 	}
-	return dbSession.Copy()
+}
+
+// Database returns the database connection
+func Database(collectionName string) (*mgo.Collection, *mgo.Session) {
+	cfg := config.Load()
+
+	s := dbSession.Copy()
+
+	return s.DB(cfg.DbName).C(collectionName), s
 }
