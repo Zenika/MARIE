@@ -1,0 +1,17 @@
+{
+  "name": "speech",
+  "version": "0.0.1",
+  "description": "Listen to audio stream and recognize text",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/speech": "^0.10.2",
+    "node-record-lpcm16": "^0.3.0",
+    "snowboy": "^1.2.0",
+    "websocket": "^1.0.24"
+  }
+}
