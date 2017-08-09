@@ -9,14 +9,16 @@ import (
 )
 
 // Do something on all things that match action and room
-func Do(thingType string, action string, params map[string]interface{}, location string) error {
+func Do(thingType string, action string, params map[string]interface{}, location string) (int, error) {
 	things, err := thing.ReadActionName(action)
 	if err != nil {
-		return err
+		return 0, err
 	}
+	sum := 0
 	for _, t := range things {
 		if t.Type == thingType {
 			if location == "" || t.Location == location {
+				sum = sum + 1
 				switch t.Protocol {
 				case "MQTT":
 					mqttConn.Do(t.MacAddress, action, params)
@@ -25,7 +27,7 @@ func Do(thingType string, action string, params map[string]interface{}, location
 			}
 		}
 	}
-	return nil
+	return sum, nil
 }
 
 // Analyze query and returns response
@@ -47,7 +49,7 @@ func Analyze(req string) map[string]interface{} {
 
 	// If the user wants to Do something
 	if res.Metadata.IntentName == "Do" {
-		err := Do(res.Parameters["thing"], res.Parameters["action"], nil, res.Parameters["location"])
+		count, err := Do(res.Parameters["thing"], res.Parameters["action"], nil, res.Parameters["location"])
 		if err != nil {
 			return map[string]interface{}{"error": err.Error()}
 		}
@@ -56,6 +58,7 @@ func Analyze(req string) map[string]interface{} {
 			"on":      res.Parameters["thing"],
 			"in":      res.Parameters["location"],
 			"message": res.Fulfillment.Speech,
+			"count":   count,
 		}
 	}
 	return map[string]interface{}{"message": res.Fulfillment.Speech}

@@ -25,8 +25,19 @@ export default {
     this.getThings()
     this.$options.sockets.onmessage = (data) => {
       const thing = JSON.parse(data.data)
-      if (thing.type) {
-        this.things.push(JSON.parse(data.data))
+      let found
+      switch (thing.topic) {
+        case 'register':
+          this.things.push(JSON.parse(data.data))
+          break
+        case 'actions':
+          found = this.things.find(t => t.macaddress === thing.macaddress)
+          found.actions = thing.actions
+          break
+        case 'getters':
+          found = this.things.find(t => t.macaddress === thing.macaddress)
+          found.getters = thing.getters
+          break
       }
     }
   },

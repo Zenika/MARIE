@@ -106,12 +106,70 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		log.Println("Pas bon")
 		return
 	}
-	t.Protocol = "HTTP"
+	if t.Protocol == "" {
+		t.Protocol = "HTTP"
+	}
 	t.IPAddress = getIPFromRemoteAddr(r.RemoteAddr)
-	thing.Register(t)
+	t, err = thing.Register(t)
+
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	launchBroadcast("register", t)
+	w.Write([]byte("OK"))
+}
+
+// AddAction to a registered thing
+func AddAction(w http.ResponseWriter, r *http.Request) {
+	t, err := parseThing(r.Body)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = thing.AddAction(t)
+	if err != nil {
+		if err == mgo.ErrNotFound {
+			log.Println("Not Found")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	launchBroadcast("actions", t)
+}
+
+// AddGetter to a registered thing
+func AddGetter(w http.ResponseWriter, r *http.Request) {
+	t, err := parseThing(r.Body)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = thing.AddGetter(t)
+	if err != nil {
+		if err == mgo.ErrNotFound {
+			log.Println("Not found")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	launchBroadcast("getters", t)
 }
 
 func parseThing(r io.ReadCloser) (thing.Thing, error) {
@@ -130,4 +188,25 @@ func parseThing(r io.ReadCloser) (thing.Thing, error) {
 func getIPFromRemoteAddr(ra string) string {
 	ip := strings.Split(ra, ":")
 	return ip[0]
+}
+
+func launchBroadcast(topic string, t thing.Thing) {
+	// Transform to JSON
+	res, err := json.Marshal(t)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	var msg map[string]interface{}
+	json.Unmarshal(res, &msg)
+	msg["topic"] = topic
+
+	res, err = json.Marshal(msg)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Broadcast the thing creation
+	Broadcast(res)
 }

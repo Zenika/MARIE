@@ -85,6 +85,7 @@ func (c mqttConnection) Do(mac string, name string, params map[string]interface{
 		log.Println(err)
 		return
 	}
+
 	c.mqtt.Publish(name, []byte(reqStr), 0, false)
 }
 
@@ -123,32 +124,7 @@ func getRoutine(c chan string, id string) {
 // Handle the request on mqtt
 func handle(msg *packet.Message, err error) {
 	if msg.Topic == "register" {
-		// Read the thing in the payload
-		var t = thing.Thing{}
-		err = json.Unmarshal(msg.Payload, &t)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		// Add Protocol
-		t.Protocol = "MQTT"
-
-		//Register thing
-		err := thing.Register(t)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		// Transform to JSON
-		res, err := json.Marshal(t)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		// Broadcast the thing creation
-		Broadcast(res)
+		register(msg.Payload)
 		return
 	}
 
@@ -169,4 +145,35 @@ func handle(msg *packet.Message, err error) {
 	}
 	r.Name = msg.Topic
 	record.Save(r)
+}
+
+func register(payload []byte) {
+	// Read the thing in the payload
+	var t = thing.Thing{}
+	err := json.Unmarshal(payload, &t)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	// Add Protocol
+	if t.Protocol == "" {
+		t.Protocol = "MQTT"
+	}
+
+	//Register thing
+	t, err = thing.Register(t)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Transform to JSON
+	res, err := json.Marshal(t)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Broadcast the thing creation
+	Broadcast(res)
 }

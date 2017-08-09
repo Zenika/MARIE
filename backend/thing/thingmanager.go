@@ -1,10 +1,10 @@
 package thing
 
 import (
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/Zenika/MARIE/backend/utils"
-	"gopkg.in/mgo.v2"
 )
 
 // Create a new thing and add it to the database
@@ -70,9 +70,9 @@ func ReadMacAddress(mac string) (Thing, error) {
 	c, s := utils.Database(CollectionName)
 	defer s.Close()
 
-	t := Thing{}
+	var t Thing
 
-	err := c.Find(bson.M{"macaddress": mac}).One(t)
+	err := c.Find(bson.M{"macaddress": mac}).One(&t)
 	return t, err
 }
 
@@ -96,13 +96,33 @@ func Delete(id bson.ObjectId) error {
 }
 
 // Register a new Thing in the base with mac address
-func Register(t Thing) error {
+func Register(t Thing) (Thing, error) {
 	_, err := ReadMacAddress(t.MacAddress)
 	t.ID = bson.NewObjectId()
 
 	if err == mgo.ErrNotFound {
-		return Create(t)
+		return t, Create(t)
 	}
 
-	return err
+	return t, err
+}
+
+// AddAction to an existing thing
+func AddAction(n Thing) error {
+	t, err := ReadMacAddress(n.MacAddress)
+	if err != nil {
+		return err
+	}
+	t.Actions = n.Actions
+	return Update(t)
+}
+
+// AddGetter to an existing thing
+func AddGetter(n Thing) error {
+	t, err := ReadMacAddress(n.MacAddress)
+	if err != nil {
+		return err
+	}
+	t.Getters = n.Getters
+	return Update(t)
 }
