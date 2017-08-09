@@ -22,7 +22,7 @@
               <v-icon>keyboard_arrow_down</v-icon>
             </v-list-tile-action>
           </v-list-tile>
-          <v-list-tile v-for="action in thing.actions" :key="action.name">
+          <v-list-tile v-for="action in thing.actions" :key="action.name" @click.native="doAction(action.name)">
             <v-list-tile-content>
               {{action.name}}
             </v-list-tile-content>
@@ -82,6 +82,9 @@ export default {
     confirmDeletion: function () {
       this.dialog = false
       this.$emit('delete')
+    },
+    doAction: function (name) {
+      this.$http.post(process.env.API_URL + '/things/do', {name, macaddress: this.thing.macaddress, protocol: this.thing.protocol})
     }
   }
 }

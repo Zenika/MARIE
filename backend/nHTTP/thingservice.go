@@ -9,6 +9,7 @@ import (
 
 	"github.com/Zenika/MARIE/backend/nMQTT"
 	"github.com/Zenika/MARIE/backend/nWS"
+	"github.com/Zenika/MARIE/backend/network"
 	"github.com/Zenika/MARIE/backend/record"
 	"github.com/Zenika/MARIE/backend/thing"
 	"github.com/gorilla/mux"
@@ -172,6 +173,18 @@ func AddGetter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	launchBroadcast("getters", t)
+}
+
+// Do something on a precise thing
+func Do(w http.ResponseWriter, r *http.Request) {
+	dec := json.NewDecoder(r.Body)
+	var dr thing.DoRequest
+	for {
+		if err := dec.Decode(&dr); err == io.EOF {
+			break
+		}
+	}
+	network.DoUnique(dr.Protocol, dr.MacAddress, dr.Name, nil)
 }
 
 func parseThing(r io.ReadCloser) (thing.Thing, error) {

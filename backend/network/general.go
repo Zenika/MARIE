@@ -36,11 +36,16 @@ func Do(thingType string, action string, params map[string]interface{}, location
 		if t.Type == thingType {
 			if location == "" || t.Location == location {
 				sum = sum + 1
-				protocols[t.Protocol].Do(t.MacAddress, action, params)
+				DoUnique(t.Protocol, t.MacAddress, action, params)
 			}
 		}
 	}
 	return sum, nil
+}
+
+// DoUnique do something on a precise thing
+func DoUnique(protocol string, macadress string, action string, params map[string]interface{}) {
+	protocols[protocol].Do(macadress, action, params)
 }
 
 // Get some value

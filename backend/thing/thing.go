@@ -39,3 +39,10 @@ type Getter struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
 }
+
+// DoRequest represents a request to do something
+type DoRequest struct {
+	Name       string `json:"name"`
+	Protocol   string `json:"protocol"`
+	MacAddress string `json:"macaddress"`
+}
