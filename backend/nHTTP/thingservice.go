@@ -1,4 +1,4 @@
-package network
+package nHTTP
 
 import (
 	"encoding/json"
@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Zenika/MARIE/backend/nMQTT"
+	"github.com/Zenika/MARIE/backend/nWS"
 	"github.com/Zenika/MARIE/backend/record"
 	"github.com/Zenika/MARIE/backend/thing"
 	"github.com/gorilla/mux"
@@ -27,7 +29,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	thing.Create(t)
 
 	for _, g := range t.Getters {
-		mqttConn.AddSubscription(g.Name)
+		nMQTT.GetConnection().AddSubscription(g.Name)
 	}
 }
 
@@ -208,5 +210,5 @@ func launchBroadcast(topic string, t thing.Thing) {
 	}
 
 	// Broadcast the thing creation
-	Broadcast(res)
+	nWS.Broadcast(res)
 }

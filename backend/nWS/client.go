@@ -1,9 +1,10 @@
-package network
+package nWS
 
 import (
 	"encoding/json"
 	"log"
 
+	"github.com/Zenika/MARIE/backend/apiai"
 	"github.com/gorilla/websocket"
 )
 
@@ -53,7 +54,7 @@ func (c *Client) read() {
 			log.Println(err)
 		} else {
 			if req.Type == "speech" {
-				c.ws.WriteJSON(Analyze(req.Message))
+				c.ws.WriteJSON(apiai.Analyze(req.Message))
 			}
 		}
 	}

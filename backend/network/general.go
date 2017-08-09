@@ -3,10 +3,27 @@ package network
 import (
 	"log"
 
-	"github.com/Zenika/MARIE/backend/apiai"
 	"github.com/Zenika/MARIE/backend/thing"
-	uuid "github.com/satori/go.uuid"
 )
+
+// Protocol represents a thing with a certain protocol
+type Protocol interface {
+	Type() string
+	Do(mac string, name string, params map[string]interface{})
+	Get(id string, name string, macaddress string)
+}
+
+var protocols map[string]Protocol
+
+// Init network
+func Init() {
+	protocols = make(map[string]Protocol)
+}
+
+// AddProtocol to map
+func AddProtocol(p Protocol) {
+	protocols[p.Type()] = p
+}
 
 // Do something on all things that match action and room
 func Do(thingType string, action string, params map[string]interface{}, location string) (int, error) {
@@ -19,54 +36,11 @@ func Do(thingType string, action string, params map[string]interface{}, location
 		if t.Type == thingType {
 			if location == "" || t.Location == location {
 				sum = sum + 1
-				switch t.Protocol {
-				case "MQTT":
-					mqttConn.Do(t.MacAddress, action, params)
-					break
-				}
+				protocols[t.Protocol].Do(t.MacAddress, action, params)
 			}
 		}
 	}
 	return sum, nil
-}
-
-// Analyze query and returns response
-func Analyze(req string) map[string]interface{} {
-	res := apiai.Analyze(req)
-	// If the user wants to Get some data
-	if res.Metadata.IntentName == "Get" {
-		id := uuid.NewV4()
-		count, err := Get(id.String(), res.Parameters["variable-name"], res.Parameters["location"])
-		if err != nil {
-			return map[string]interface{}{"error": err.Error()}
-		}
-		return map[string]interface{}{
-			"executing": id,
-			"count":     count,
-			"message":   res.Fulfillment.Speech,
-		}
-	}
-
-	// If the user wants to Do something
-	if res.Metadata.IntentName == "Do" {
-		count, err := Do(res.Parameters["thing"], res.Parameters["action"], nil, res.Parameters["location"])
-		if err != nil {
-			return map[string]interface{}{"error": err.Error()}
-		}
-		return map[string]interface{}{
-			"doing":   res.Parameters["action"],
-			"on":      res.Parameters["thing"],
-			"in":      res.Parameters["location"],
-			"message": res.Fulfillment.Speech,
-			"count":   count,
-		}
-	}
-	return map[string]interface{}{"message": res.Fulfillment.Speech}
-}
-
-// Broadcast message to all connected devices
-func Broadcast(m []byte) {
-	BroadcastWS(m)
 }
 
 // Get some value
@@ -80,11 +54,7 @@ func Get(id string, name string, location string) (int, error) {
 	for _, t := range things {
 		if location == "" || location == t.Location {
 			sum = sum + 1
-			switch t.Protocol {
-			case "MQTT":
-				mqttConn.Get(id, name, t.MacAddress)
-				break
-			}
+			protocols[t.Protocol].Get(id, name, t.MacAddress)
 		}
 	}
 	return sum, nil

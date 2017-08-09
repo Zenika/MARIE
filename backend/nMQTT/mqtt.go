@@ -1,4 +1,4 @@
-package network
+package nMQTT
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Zenika/MARIE/backend/config"
+	"github.com/Zenika/MARIE/backend/nWS"
 	"github.com/Zenika/MARIE/backend/record"
 
 	"github.com/Zenika/MARIE/backend/thing"
@@ -15,12 +16,12 @@ import (
 	"github.com/gomqtt/packet"
 )
 
-type mqttConnection struct {
+type MqttConnection struct {
 	mqtt *client.Client
 	get  chan string
 }
 
-var mqttConn mqttConnection
+var mqttConn MqttConnection
 
 // InitMQTT client
 func InitMQTT() {
@@ -64,21 +65,31 @@ func InitMQTT() {
 		}
 	}
 	mqtt.Subscribe("register", 0)
-	mqttConn = mqttConnection{
+	mqttConn = MqttConnection{
 		get:  make(chan string),
 		mqtt: mqtt,
 	}
 	log.Println("MQTT client started")
 }
 
+// GetConnection returns the mqtt connection
+func GetConnection() MqttConnection {
+	return mqttConn
+}
+
 // AddSubscription add subscribtion on a specific topic
-func (c mqttConnection) AddSubscription(topic string) {
+func (c MqttConnection) AddSubscription(topic string) {
 	c.mqtt.Subscribe(topic, 0)
 	c.mqtt.Subscribe(topic+"_value", 0)
 }
 
-// DoMQTT something on the thing
-func (c mqttConnection) Do(mac string, name string, params map[string]interface{}) {
+// Type returns the type of the connection
+func (c MqttConnection) Type() string {
+	return "MQTT"
+}
+
+// Do something on the thing
+func (c MqttConnection) Do(mac string, name string, params map[string]interface{}) {
 	req := map[string]string{"macaddress": mac}
 	reqStr, err := json.Marshal(req)
 	if err != nil {
@@ -89,9 +100,9 @@ func (c mqttConnection) Do(mac string, name string, params map[string]interface{
 	c.mqtt.Publish(name, []byte(reqStr), 0, false)
 }
 
-// GetMQTT from a thing
-func (c mqttConnection) Get(id string, name string, macaddress string) {
-
+// Get from a thing
+func (c MqttConnection) Get(id string, name string, macaddress string) {
+	log.Println("Test")
 	req := map[string]string{"macaddress": macaddress}
 	reqStr, err := json.Marshal(req)
 	if err != nil {
@@ -118,7 +129,7 @@ func getRoutine(c chan string, id string) {
 		log.Println(err)
 		return
 	}
-	hub.broadcast <- byt
+	nWS.Broadcast(byt)
 }
 
 // Handle the request on mqtt
@@ -175,5 +186,5 @@ func register(payload []byte) {
 	}
 
 	// Broadcast the thing creation
-	Broadcast(res)
+	nWS.Broadcast(res)
 }

@@ -1,4 +1,4 @@
-package network
+package nWS
 
 import (
 	"log"
@@ -21,8 +21,8 @@ type Request struct {
 	Message string `json:"message"`
 }
 
-// BroadcastWS a message to all sockets
-func BroadcastWS(m []byte) {
+// Broadcast a message to all sockets
+func Broadcast(m []byte) {
 	hub.broadcast <- m
 }
 

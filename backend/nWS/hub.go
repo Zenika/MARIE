@@ -1,4 +1,4 @@
-package network
+package nWS
 
 // Hub represents a websocket client pool
 type Hub struct {

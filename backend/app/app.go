@@ -4,6 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Zenika/MARIE/backend/nHTTP"
+	"github.com/Zenika/MARIE/backend/nMQTT"
+	"github.com/Zenika/MARIE/backend/nWS"
 	"github.com/Zenika/MARIE/backend/network"
 	"github.com/Zenika/MARIE/backend/utils"
 	"github.com/gorilla/mux"
@@ -20,7 +23,9 @@ func (a *App) Initialize() {
 	a.initializeRoutes()
 	utils.InitDatabase()
 
-	network.InitMQTT()
+	nMQTT.InitMQTT()
+	network.Init()
+	network.AddProtocol(nMQTT.GetConnection())
 }
 
 // Run the application
@@ -40,19 +45,19 @@ func (a *App) initializeRoutes() {
 	r := mux.NewRouter()
 
 	// Websockets
-	network.StartHub()
-	r.HandleFunc("/ws", network.Handle)
+	nWS.StartHub()
+	r.HandleFunc("/ws", nWS.Handle)
 
 	// MARIE api
 	s := r.PathPrefix("/api").Subrouter()
-	s.HandleFunc("/things", network.Post).Methods("POST")
-	s.HandleFunc("/things", network.GetAll).Methods("GET")
-	s.HandleFunc("/things/{id}", network.GetThing).Methods("GET")
-	s.HandleFunc("/things", network.Update).Methods("PUT")
-	s.HandleFunc("/things/{id}", network.Remove).Methods("DELETE")
-	s.HandleFunc("/things/register", network.Register).Methods("POST")
-	s.HandleFunc("/things/actions", network.AddAction).Methods("POST")
-	s.HandleFunc("/things/getters", network.AddGetter).Methods("POST")
+	s.HandleFunc("/things", nHTTP.Post).Methods("POST")
+	s.HandleFunc("/things", nHTTP.GetAll).Methods("GET")
+	s.HandleFunc("/things/{id}", nHTTP.GetThing).Methods("GET")
+	s.HandleFunc("/things", nHTTP.Update).Methods("PUT")
+	s.HandleFunc("/things/{id}", nHTTP.Remove).Methods("DELETE")
+	s.HandleFunc("/things/register", nHTTP.Register).Methods("POST")
+	s.HandleFunc("/things/actions", nHTTP.AddAction).Methods("POST")
+	s.HandleFunc("/things/getters", nHTTP.AddGetter).Methods("POST")
 
 	a.Router = c.Handler(r)
 	log.Println("HTTP and WS servers started")
