@@ -14,7 +14,7 @@ import (
 	"github.com/Zenika/MARIE/backend/thing"
 	"github.com/gorilla/mux"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 

@@ -185,6 +185,16 @@ func register(payload []byte) {
 		return
 	}
 
+	var msg map[string]interface{}
+	json.Unmarshal(res, &msg)
+	msg["topic"] = "register"
+
+	res, err = json.Marshal(msg)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	// Broadcast the thing creation
 	nWS.Broadcast(res)
 }
