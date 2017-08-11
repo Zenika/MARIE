@@ -52,7 +52,7 @@ func InitMQTT() {
 		if t.Protocol == "MQTT" {
 			for _, v := range t.Getters {
 				// Subscribe to stored values
-				_, err = mqtt.Subscribe(v.Name, 0)
+				_, err = mqtt.Subscribe("value/"+v.Name, 0)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -88,50 +88,6 @@ func (c MqttConnection) Type() string {
 	return "MQTT"
 }
 
-// Do something on the thing
-func (c MqttConnection) Do(mac string, name string, params map[string]interface{}) {
-	req := map[string]string{"macaddress": mac}
-	reqStr, err := json.Marshal(req)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	c.mqtt.Publish(name, []byte(reqStr), 0, false)
-}
-
-// Get from a thing
-func (c MqttConnection) Get(id string, name string, macaddress string) {
-	log.Println("Test")
-	req := map[string]string{"macaddress": macaddress}
-	reqStr, err := json.Marshal(req)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	go getRoutine(c.get, id)
-
-	c.mqtt.Publish("get_"+name, []byte(reqStr), 0, false)
-}
-
-func getRoutine(c chan string, id string) {
-	message := <-c
-
-	var res map[string]interface{}
-	err := json.Unmarshal([]byte(message), &res)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	res["id"] = id
-	byt, err := json.Marshal(res)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	nWS.Broadcast(byt)
-}
-
 // Handle the request on mqtt
 func handle(msg *packet.Message, err error) {
 	if msg.Topic == "register" {
@@ -140,7 +96,7 @@ func handle(msg *packet.Message, err error) {
 	}
 
 	// See if topic ends with _value
-	match, _ := regexp.MatchString("_value$", msg.Topic)
+	match, _ := regexp.MatchString("^value", msg.Topic)
 
 	if match {
 		mqttConn.get <- string(msg.Payload)
