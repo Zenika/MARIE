@@ -14,7 +14,6 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-
 // Register a thing in the database with its MAC address
 func Register(w http.ResponseWriter, r *http.Request) {
 	t, err := parseThing(r.Body)
@@ -30,8 +29,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	t, err = thing.Register(t)
 
 	if err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

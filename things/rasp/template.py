@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 from time import sleep
-from utils import doSubscribes, getmac, register
+from utils import register
 
 def on_connect(mqttc, obj, flags, rc):
     print("Connected")

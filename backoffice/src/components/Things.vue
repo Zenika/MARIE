@@ -64,7 +64,7 @@ h1, h2 {
   font-weight: 100;
 }
 
-flex {
-  display: inline-block;
+.flex {
+  margin-bottom: 10px;
 }
 </style>

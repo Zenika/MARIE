@@ -1,6 +1,8 @@
 package thing
 
 import (
+	"errors"
+
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
@@ -104,7 +106,7 @@ func Register(t Thing) (Thing, error) {
 		return t, Create(t)
 	}
 
-	return t, err
+	return t, errors.New("Thing already registered")
 }
 
 // AddAction to an existing thing
