@@ -59,6 +59,7 @@ func (a *App) initializeRoutes() {
 	s.HandleFunc("/things/actions", nHTTP.AddAction).Methods("POST")
 	s.HandleFunc("/things/getters", nHTTP.AddGetter).Methods("POST")
 	s.HandleFunc("/things/do", nHTTP.Do).Methods("POST")
+	s.HandleFunc("/things/get", nHTTP.Get).Methods("POST")
 
 	a.Router = c.Handler(r)
 	log.Println("HTTP and WS servers started")

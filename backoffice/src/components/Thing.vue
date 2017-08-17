@@ -38,7 +38,7 @@
               <v-icon>keyboard_arrow_down</v-icon>
             </v-list-tile-action>
           </v-list-tile>
-          <v-list-tile v-for="getter in thing.getters" :key="getter.name">
+          <v-list-tile v-for="getter in thing.getters" :key="getter.name" @click.native="doGetter(getter.name)">
             <v-list-tile-content>
               {{getter.type}} - {{getter.name}}
             </v-list-tile-content>
@@ -75,7 +75,16 @@ export default {
   data () {
     return {
       dialog: false,
-      test: true
+      test: true,
+      id: ''
+    }
+  },
+  mounted () {
+    this.$options.sockets.onmessage = (res) => {
+      res = JSON.parse(res.data)
+      if (res.id === this.id) {
+        alert(res.value)
+      }
     }
   },
   methods: {
@@ -84,7 +93,11 @@ export default {
       this.$emit('delete')
     },
     doAction: function (name) {
-      this.$http.post(process.env.API_URL + '/things/do', {name, macaddress: this.thing.macaddress, protocol: this.thing.protocol})
+      this.$http.post(process.env.API_URL + '/things/do', {name, macaddress: this.thing.macaddress})
+    },
+    doGetter: function (name) {
+      this.$http.post(process.env.API_URL + '/things/get', {name, macaddress: this.thing.macaddress})
+                .then(res => { this.id = res.data })
     }
   }
 }

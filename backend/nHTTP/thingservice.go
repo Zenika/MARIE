@@ -10,6 +10,7 @@ import (
 	"github.com/Zenika/MARIE/backend/nWS"
 	"github.com/Zenika/MARIE/backend/network"
 	"github.com/Zenika/MARIE/backend/thing"
+	uuid "github.com/satori/go.uuid"
 
 	mgo "gopkg.in/mgo.v2"
 )
@@ -83,6 +84,20 @@ func AddGetter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	launchBroadcast("getters", t)
+}
+
+// Get a value from a thing
+func Get(w http.ResponseWriter, r *http.Request) {
+	dec := json.NewDecoder(r.Body)
+	var gr thing.GetRequest
+	for {
+		if err := dec.Decode(&gr); err == io.EOF {
+			break
+		}
+	}
+	id := uuid.NewV4().String()
+	network.GetMacAddress(id, gr.MacAddress, gr.Name)
+	w.Write([]byte(id))
 }
 
 // Do something on a precise thing
