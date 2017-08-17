@@ -6,7 +6,6 @@ def on_connect(mqttc, obj, flags, rc):
     print("Connected")
 
 def on_message(mqttc, obj, msg):
-    global on
     print(msg.topic + " " + str(msg.payload))
 
 
