@@ -1,6 +1,7 @@
 package nWS
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -24,6 +25,16 @@ type Request struct {
 // Broadcast a message to all sockets
 func Broadcast(m []byte) {
 	hub.broadcast <- m
+}
+
+// BroadcastJSON a json message to all sockets
+func BroadcastJSON(msg map[string]interface{}) {
+	res, err := json.Marshal(msg)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	Broadcast(res)
 }
 
 // StartHub starts the hub instance

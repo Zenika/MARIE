@@ -67,7 +67,6 @@ func InitMQTT() {
 
 			for _, v := range t.Actions {
 				// Subscribe to return code
-				log.Println("Subscribe return/" + v.Name)
 				_, err = mqtt.Subscribe("return/"+v.Name, 0)
 				if err != nil {
 					log.Fatal(err)
@@ -76,6 +75,7 @@ func InitMQTT() {
 		}
 	}
 	mqtt.Subscribe("register", 0)
+	mqtt.Subscribe("heartbeat", 0)
 	mqttConn = MqttConnection{
 		get:  make(chan string),
 		do:   make(chan string),
@@ -113,6 +113,11 @@ func handle(msg *packet.Message, err error) {
 		return
 	}
 
+	if msg.Topic == "heartbeat" {
+		heartbeat(msg.Payload)
+		return
+	}
+
 	// See if topic begins with value
 	match, _ := regexp.MatchString("^value", msg.Topic)
 
@@ -137,6 +142,31 @@ func handle(msg *packet.Message, err error) {
 	}
 	r.Name = msg.Topic
 	record.Save(r)
+}
+
+func heartbeat(payload []byte) {
+	var t = thing.Thing{}
+	err := json.Unmarshal(payload, &t)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	t, err = thing.ReadMacAddress(t.MacAddress)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if t.State == false {
+		t.State = true
+		err = thing.SetState(t, true)
+		if err != nil {
+			log.Println(err)
+		}
+		msg := make(map[string]interface{})
+		msg["state-on"] = t.MacAddress
+		nWS.BroadcastJSON(msg)
+	}
+	thing.UpdateHeartBeat(t)
 }
 
 func register(payload []byte) {

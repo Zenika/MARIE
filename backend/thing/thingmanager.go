@@ -2,6 +2,7 @@ package thing
 
 import (
 	"errors"
+	"time"
 
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -44,15 +45,16 @@ func Read(id bson.ObjectId) (Thing, error) {
 func Update(t Thing) error {
 	c, s := utils.Database(CollectionName)
 	defer s.Close()
-
 	return c.Update(bson.M{"_id": t.ID}, bson.M{"getters": t.Getters,
-		"actions":    t.Actions,
-		"location":   t.Location,
-		"protocol":   t.Protocol,
-		"name":       t.Name,
-		"type":       t.Type,
-		"macaddress": t.MacAddress,
-		"ipaddress":  t.IPAddress})
+		"actions":       t.Actions,
+		"location":      t.Location,
+		"protocol":      t.Protocol,
+		"name":          t.Name,
+		"type":          t.Type,
+		"macaddress":    t.MacAddress,
+		"ipaddress":     t.IPAddress,
+		"state":         t.State,
+		"lastheartbeat": t.LastHeartBeat})
 }
 
 // ReadGetterName return things that have a getter with the given name
@@ -126,5 +128,17 @@ func AddGetter(n Thing) error {
 		return err
 	}
 	t.Getters = n.Getters
+	return Update(t)
+}
+
+// SetState of a thing
+func SetState(t Thing, state bool) error {
+	t.State = state
+	return Update(t)
+}
+
+// UpdateHeartBeat to current time and update state to true
+func UpdateHeartBeat(t Thing) error {
+	t.LastHeartBeat = time.Now()
 	return Update(t)
 }

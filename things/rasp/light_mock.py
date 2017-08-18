@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
-from utils import return_code, isAction, getAction, isGetter, register
+import sys
+from utils import return_code, isAction, getAction, isGetter, register, heartbeat
 
 on = 0
 
@@ -28,7 +29,12 @@ getters = []
 
 register(mqttc, "Lumiere_mock", "light", "couloir", actions, getters)
 
+timer = heartbeat([mqttc])
 
 rc = 0
-while rc == 0:
-  rc = mqttc.loop()
+try:
+  while rc == 0:
+    rc = mqttc.loop()
+except KeyboardInterrupt:
+  timer.cancel()
+  sys.exit()

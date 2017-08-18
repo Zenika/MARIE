@@ -3,11 +3,13 @@ package app
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Zenika/MARIE/backend/nHTTP"
 	"github.com/Zenika/MARIE/backend/nMQTT"
 	"github.com/Zenika/MARIE/backend/nWS"
 	"github.com/Zenika/MARIE/backend/network"
+	"github.com/Zenika/MARIE/backend/thing"
 	"github.com/Zenika/MARIE/backend/utils"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -26,6 +28,8 @@ func (a *App) Initialize() {
 	nMQTT.InitMQTT()
 	network.Init()
 	network.AddProtocol(nMQTT.GetConnection())
+	go checkHeartBeat()
+
 }
 
 // Run the application
@@ -63,4 +67,25 @@ func (a *App) initializeRoutes() {
 
 	a.Router = c.Handler(r)
 	log.Println("HTTP and WS servers started")
+}
+
+func checkHeartBeat() {
+	for {
+		things, err := thing.ReadAll()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		for _, t := range things {
+			if time.Since(t.LastHeartBeat).Seconds() > 15 {
+				if t.State == true {
+					message := make(map[string]interface{})
+					message["state-off"] = t.MacAddress
+					nWS.BroadcastJSON(message)
+					thing.SetState(t, false)
+				}
+			}
+		}
+		time.Sleep(15000 * time.Millisecond)
+	}
 }

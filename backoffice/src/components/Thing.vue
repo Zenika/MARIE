@@ -1,6 +1,6 @@
 <template>
-  <v-card>
-    <v-card-title primary-title>
+  <v-card >
+    <v-card-title primary-title :class="{'red lighten-1': !thing.state, 'green lighten-1': thing.state}">
       <h3 class="headline">{{thing.name}}</h3><br />
     </v-card-title>
     <v-card-text>
@@ -76,7 +76,8 @@ export default {
     return {
       dialog: false,
       test: true,
-      id: ''
+      id: '',
+      state: false
     }
   },
   mounted () {
@@ -92,7 +93,12 @@ export default {
             alert('An error occured')
           }
         }
+      } else if (res['state-off'] === this.thing.macaddress) {
+        this.thing.state = false
+      } else if (res['state-on'] === this.thing.macaddress) {
+        this.thing.state = true
       }
+      console.log(res['state-on'] === this.thing.macaddress, res, this.thing.state)
     }
   },
   methods: {
