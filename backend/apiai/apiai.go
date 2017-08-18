@@ -30,14 +30,13 @@ func Analyze(req string) map[string]interface{} {
 }
 
 func request(res apiaigo.Result) map[string]interface{} {
+	id := uuid.NewV4().String()
 	// If the user wants to Get some data
 	if res.Metadata.IntentName == "Get" {
-		id := uuid.NewV4()
-
 		if res.Parameters["location"] == "" {
-			network.GetAll(id.String(), res.Parameters["variable-name"])
+			network.GetAll(id, res.Parameters["variable-name"])
 		} else {
-			network.GetLocation(id.String(), res.Parameters["location"], res.Parameters["variable-name"])
+			network.GetLocation(id, res.Parameters["location"], res.Parameters["variable-name"])
 		}
 		// count, err := network.Get(id.String(), res.Parameters["variable-name"], res.Parameters["location"])
 		// if err != nil {
@@ -52,15 +51,16 @@ func request(res apiaigo.Result) map[string]interface{} {
 	// If the user wants to Do something
 	if res.Metadata.IntentName == "Do" {
 		if res.Parameters["location"] == "" {
-			network.DoAll(res.Parameters["thing"], res.Parameters["action"], nil)
+			network.DoAll(id, res.Parameters["thing"], res.Parameters["action"], nil)
 		} else {
-			network.DoLocation(res.Parameters["thing"], res.Parameters["location"], res.Parameters["action"], nil)
+			network.DoLocation(id, res.Parameters["thing"], res.Parameters["location"], res.Parameters["action"], nil)
 		}
 		return map[string]interface{}{
 			"doing":   res.Parameters["action"],
 			"on":      res.Parameters["thing"],
 			"in":      res.Parameters["location"],
 			"message": res.Fulfillment.Speech,
+			"id":      id,
 		}
 	}
 	return map[string]interface{}{"message": res.Fulfillment.Speech}

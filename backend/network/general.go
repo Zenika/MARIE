@@ -5,9 +5,9 @@ type Protocol interface {
 	Type() string
 
 	// Actions
-	DoAll(thingType string, action string, params map[string]interface{})
-	DoLocation(thingType string, location string, action string, params map[string]interface{})
-	DoMacAddress(action string, macaddress string, params map[string]interface{})
+	DoAll(id string, thingType string, action string, params map[string]interface{})
+	DoLocation(id string, thingType string, location string, action string, params map[string]interface{})
+	DoMacAddress(id string, action string, macaddress string, params map[string]interface{})
 
 	GetAll(id string, getter string)
 	GetLocation(id string, location string, getter string)

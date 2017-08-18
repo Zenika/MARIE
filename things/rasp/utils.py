@@ -7,6 +7,11 @@ def isAction(topic, action):
   name = strs[len(strs) - 1]
   return name == action
 
+def getAction(topic):
+  strs = topic.split("/")
+  name = strs[len(strs) - 1]
+  return name
+
 def isGetter(topic, getter):
   if "getter" not in topic:
     return 0
@@ -25,6 +30,10 @@ def doSubscribeGetters(mqttc, location, macaddress, getter):
   mqttc.subscribe("macaddress/" + macaddress + "/getter/" + getter)
   mqttc.subscribe("location/" + location + "/getter/" + getter)
   print("Subscribed to " + getter + " getter")
+
+def return_code(mqttc, action, code):
+  message = {"code": code}
+  mqttc.publish("return/" + action, json.dumps(message), qos=2)
 
 def respond(mqttc, getter, value):
   message = {"value": value}

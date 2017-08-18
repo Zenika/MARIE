@@ -1,22 +1,22 @@
 package network
 
 // DoAll do something on all things
-func DoAll(thingType string, action string, params map[string]interface{}) {
+func DoAll(id string, thingType string, action string, params map[string]interface{}) {
 	for _, p := range protocols {
-		p.DoAll(thingType, action, params)
+		p.DoAll(id, thingType, action, params)
 	}
 }
 
 // DoLocation do something on a specific location
-func DoLocation(thingType string, location string, action string, params map[string]interface{}) {
+func DoLocation(id string, thingType string, location string, action string, params map[string]interface{}) {
 	for _, p := range protocols {
-		p.DoLocation(thingType, location, action, params)
+		p.DoLocation(id, thingType, location, action, params)
 	}
 }
 
 // DoMacAddress do something with a mac address
-func DoMacAddress(macaddress string, action string, params map[string]interface{}) {
+func DoMacAddress(id string, macaddress string, action string, params map[string]interface{}) {
 	for _, p := range protocols {
-		p.DoMacAddress(macaddress, action, params)
+		p.DoMacAddress(id, macaddress, action, params)
 	}
 }

@@ -16,9 +16,11 @@ import (
 	"github.com/gomqtt/packet"
 )
 
+// MqttConnection represents a connection with two chans for actions and getters
 type MqttConnection struct {
 	mqtt *client.Client
 	get  chan string
+	do   chan string
 }
 
 var mqttConn MqttConnection
@@ -62,11 +64,21 @@ func InitMQTT() {
 					log.Fatal(err)
 				}
 			}
+
+			for _, v := range t.Actions {
+				// Subscribe to return code
+				log.Println("Subscribe return/" + v.Name)
+				_, err = mqtt.Subscribe("return/"+v.Name, 0)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
 		}
 	}
 	mqtt.Subscribe("register", 0)
 	mqttConn = MqttConnection{
 		get:  make(chan string),
+		do:   make(chan string),
 		mqtt: mqtt,
 	}
 	log.Println("MQTT client started")
@@ -77,10 +89,16 @@ func GetConnection() MqttConnection {
 	return mqttConn
 }
 
-// AddSubscription add subscribtion on a specific topic
-func (c MqttConnection) AddSubscription(topic string) {
+// AddGetSubscription add subscribtion on a topic for getters
+func (c MqttConnection) AddGetSubscription(topic string) {
 	c.mqtt.Subscribe(topic, 0)
 	c.mqtt.Subscribe(topic+"_value", 0)
+	c.mqtt.Subscribe("value/"+topic, 0)
+}
+
+// AddDoSubscription add subscription on a topic for actions
+func (c MqttConnection) AddDoSubscription(topic string) {
+	c.mqtt.Subscribe("return/"+topic, 0)
 }
 
 // Type returns the type of the connection
@@ -95,11 +113,18 @@ func handle(msg *packet.Message, err error) {
 		return
 	}
 
-	// See if topic ends with _value
+	// See if topic begins with value
 	match, _ := regexp.MatchString("^value", msg.Topic)
 
 	if match {
 		mqttConn.get <- string(msg.Payload)
+		return
+	}
+
+	match, _ = regexp.MatchString("^return", msg.Topic)
+
+	if match {
+		mqttConn.do <- string(msg.Payload)
 		return
 	}
 
@@ -153,4 +178,22 @@ func register(payload []byte) {
 
 	// Broadcast the thing creation
 	nWS.Broadcast(res)
+}
+
+func mqttRoutine(c chan string, id string) {
+	message := <-c
+
+	var res map[string]interface{}
+	err := json.Unmarshal([]byte(message), &res)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	res["id"] = id
+	byt, err := json.Marshal(res)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	nWS.Broadcast(byt)
 }

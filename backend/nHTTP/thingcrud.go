@@ -25,7 +25,11 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	thing.Create(t)
 
 	for _, g := range t.Getters {
-		nMQTT.GetConnection().AddSubscription(g.Name)
+		nMQTT.GetConnection().AddGetSubscription(g.Name)
+	}
+
+	for _, a := range t.Actions {
+		nMQTT.GetConnection().AddDoSubscription(a.Name)
 	}
 }
 

@@ -109,7 +109,9 @@ func Do(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-	network.DoMacAddress(dr.MacAddress, dr.Name, nil)
+	id := uuid.NewV4().String()
+	network.DoMacAddress(id, dr.MacAddress, dr.Name, nil)
+	w.Write([]byte(id))
 }
 
 func parseThing(r io.ReadCloser) (thing.Thing, error) {

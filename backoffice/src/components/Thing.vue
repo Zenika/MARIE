@@ -83,7 +83,15 @@ export default {
     this.$options.sockets.onmessage = (res) => {
       res = JSON.parse(res.data)
       if (res.id === this.id) {
-        alert(res.value)
+        if (res.value) {
+          alert(res.value)
+        } else {
+          if (res.code === 0) {
+            alert('Action executed successfully')
+          } else {
+            alert('An error occured')
+          }
+        }
       }
     }
   },
@@ -94,6 +102,7 @@ export default {
     },
     doAction: function (name) {
       this.$http.post(process.env.API_URL + '/things/do', {name, macaddress: this.thing.macaddress})
+                .then(res => { this.id = res.data })
     },
     doGetter: function (name) {
       this.$http.post(process.env.API_URL + '/things/get', {name, macaddress: this.thing.macaddress})
