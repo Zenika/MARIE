@@ -153,12 +153,6 @@ func launchBroadcast(topic string, t thing.Thing) {
 	json.Unmarshal(res, &msg)
 	msg["topic"] = topic
 
-	res, err = json.Marshal(msg)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 	// Broadcast the thing creation
-	nWS.Broadcast(res)
+	nWS.BroadcastJSON(msg)
 }

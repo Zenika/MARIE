@@ -199,14 +199,8 @@ func register(payload []byte) {
 	json.Unmarshal(res, &msg)
 	msg["topic"] = "register"
 
-	res, err = json.Marshal(msg)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 	// Broadcast the thing creation
-	nWS.Broadcast(res)
+	nWS.BroadcastJSON(msg)
 }
 
 func mqttRoutine(c chan string, id string) {
@@ -219,10 +213,5 @@ func mqttRoutine(c chan string, id string) {
 		return
 	}
 	res["id"] = id
-	byt, err := json.Marshal(res)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	nWS.Broadcast(byt)
+	nWS.BroadcastJSON(res)
 }
