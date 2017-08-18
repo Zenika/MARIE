@@ -18,6 +18,18 @@ func Create(t Thing) error {
 	return c.Insert(t)
 }
 
+// Register a new Thing in the base with mac address
+func Register(t Thing) (Thing, error) {
+	_, err := ReadMacAddress(t.MacAddress)
+	t.ID = bson.NewObjectId()
+
+	if err == mgo.ErrNotFound {
+		return t, Create(t)
+	}
+
+	return t, errors.New("Thing already registered")
+}
+
 // ReadAll things in database
 func ReadAll() ([]Thing, error) {
 	c, s := utils.Database(CollectionName)
@@ -39,22 +51,6 @@ func Read(id bson.ObjectId) (Thing, error) {
 	err := c.FindId(id).One(&res)
 
 	return res, err
-}
-
-// Update a thing in database
-func Update(t Thing) error {
-	c, s := utils.Database(CollectionName)
-	defer s.Close()
-	return c.Update(bson.M{"_id": t.ID}, bson.M{"getters": t.Getters,
-		"actions":       t.Actions,
-		"location":      t.Location,
-		"protocol":      t.Protocol,
-		"name":          t.Name,
-		"type":          t.Type,
-		"macaddress":    t.MacAddress,
-		"ipaddress":     t.IPAddress,
-		"state":         t.State,
-		"lastheartbeat": t.LastHeartBeat})
 }
 
 // ReadGetterName return things that have a getter with the given name
@@ -91,54 +87,55 @@ func ReadActionName(name string) ([]Thing, error) {
 	return things, err
 }
 
+// Update a thing in database
+func (t Thing) Update() error {
+	c, s := utils.Database(CollectionName)
+	defer s.Close()
+	return c.Update(bson.M{"_id": t.ID}, bson.M{"getters": t.Getters,
+		"actions":       t.Actions,
+		"location":      t.Location,
+		"protocol":      t.Protocol,
+		"name":          t.Name,
+		"type":          t.Type,
+		"macaddress":    t.MacAddress,
+		"ipaddress":     t.IPAddress,
+		"state":         t.State,
+		"lastheartbeat": t.LastHeartBeat})
+}
+
 // Delete the thing from the database
-func Delete(id bson.ObjectId) error {
+func (t Thing) Delete() error {
 	c, s := utils.Database(CollectionName)
 	defer s.Close()
 
-	return c.RemoveId(id)
-}
-
-// Register a new Thing in the base with mac address
-func Register(t Thing) (Thing, error) {
-	_, err := ReadMacAddress(t.MacAddress)
-	t.ID = bson.NewObjectId()
-
-	if err == mgo.ErrNotFound {
-		return t, Create(t)
-	}
-
-	return t, errors.New("Thing already registered")
+	return c.RemoveId(t.ID)
 }
 
 // AddAction to an existing thing
-func AddAction(n Thing) error {
-	t, err := ReadMacAddress(n.MacAddress)
-	if err != nil {
-		return err
-	}
-	t.Actions = n.Actions
-	return Update(t)
+func (t Thing) AddAction(actions []Action) error {
+	t.Actions = actions
+	return t.Update()
 }
 
 // AddGetter to an existing thing
-func AddGetter(n Thing) error {
-	t, err := ReadMacAddress(n.MacAddress)
-	if err != nil {
-		return err
-	}
-	t.Getters = n.Getters
-	return Update(t)
+func (t Thing) AddGetter(getters []Getter) error {
+	t.Getters = getters
+	return t.Update()
 }
 
 // SetState of a thing
-func SetState(t Thing, state bool) error {
+func (t Thing) SetState(state bool) error {
 	t.State = state
-	return Update(t)
+	return t.Update()
 }
 
 // UpdateHeartBeat to current time and update state to true
-func UpdateHeartBeat(t Thing) error {
+func (t Thing) UpdateHeartBeat() error {
 	t.LastHeartBeat = time.Now()
-	return Update(t)
+	return t.Update()
+}
+
+// IsOnline checks the state to see if thing is online
+func (t Thing) IsOnline() bool {
+	return time.Since(t.LastHeartBeat).Seconds() > 15
 }

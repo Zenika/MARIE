@@ -86,7 +86,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = thing.Update(t)
+	err = t.Update()
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -97,7 +97,11 @@ func Update(w http.ResponseWriter, r *http.Request) {
 // Remove thing from the database
 func Remove(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	t, err := thing.Read(bson.ObjectIdHex(vars["id"]))
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	record.DeleteThingID(bson.ObjectIdHex(vars["id"]))
-
-	thing.Delete(bson.ObjectIdHex(vars["id"]))
+	t.Delete()
 }

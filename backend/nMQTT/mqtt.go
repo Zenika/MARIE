@@ -141,7 +141,7 @@ func handle(msg *packet.Message, err error) {
 		return
 	}
 	r.Name = msg.Topic
-	record.Save(r)
+	r.Save()
 }
 
 func heartbeat(payload []byte) {
@@ -157,8 +157,7 @@ func heartbeat(payload []byte) {
 		return
 	}
 	if t.State == false {
-		t.State = true
-		err = thing.SetState(t, true)
+		err = t.SetState(true)
 		if err != nil {
 			log.Println(err)
 		}
@@ -166,7 +165,7 @@ func heartbeat(payload []byte) {
 		msg["state-on"] = t.MacAddress
 		nWS.BroadcastJSON(msg)
 	}
-	thing.UpdateHeartBeat(t)
+	t.UpdateHeartBeat()
 }
 
 func register(payload []byte) {

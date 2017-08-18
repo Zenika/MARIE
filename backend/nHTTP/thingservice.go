@@ -46,8 +46,13 @@ func AddAction(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	err = thing.AddAction(t)
+	old, err := thing.ReadMacAddress(t.MacAddress)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = old.AddAction(t.Actions)
 	if err != nil {
 		if err == mgo.ErrNotFound {
 			log.Println("Not Found")
@@ -70,8 +75,13 @@ func AddGetter(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	err = thing.AddGetter(t)
+	old, err := thing.ReadMacAddress(t.MacAddress)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = old.AddGetter(t.Getters)
 	if err != nil {
 		if err == mgo.ErrNotFound {
 			log.Println("Not found")

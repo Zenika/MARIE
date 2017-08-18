@@ -29,7 +29,6 @@ func (a *App) Initialize() {
 	network.Init()
 	network.AddProtocol(nMQTT.GetConnection())
 	go checkHeartBeat()
-
 }
 
 // Run the application
@@ -77,12 +76,12 @@ func checkHeartBeat() {
 			return
 		}
 		for _, t := range things {
-			if time.Since(t.LastHeartBeat).Seconds() > 15 {
+			if t.IsOnline() {
 				if t.State == true {
 					message := make(map[string]interface{})
 					message["state-off"] = t.MacAddress
 					nWS.BroadcastJSON(message)
-					thing.SetState(t, false)
+					t.SetState(false)
 				}
 			}
 		}

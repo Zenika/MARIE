@@ -47,7 +47,7 @@ func MeanLast(name string, l string) (float64, error) {
 }
 
 // Save save a thing record to the database with verification
-func Save(r Record) error {
+func (r Record) Save() error {
 	c, s := utils.Database(CollectionName)
 	defer s.Close()
 
