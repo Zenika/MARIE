@@ -39,7 +39,7 @@
                 <v-icon>keyboard_arrow_down</v-icon>
               </v-list-tile-action>
             </v-list-tile>
-            <v-list-tile v-for="getter in thing.getters" :key="getter.name" @click.native="doGetter(getter.name)">
+            <v-list-tile v-tooltip:top="{ html: value, visible: true }" v-for="getter in thing.getters" :key="getter.name" @mouseover.native="doGetter(getter.name)">
               <v-list-tile-content>
                 {{getter.type}} - {{getter.name}}
               </v-list-tile-content>
@@ -90,7 +90,8 @@ export default {
       id: '',
       state: false,
       snackbar: false,
-      text: ''
+      text: '',
+      value: 0
     }
   },
   mounted () {
@@ -98,7 +99,7 @@ export default {
       res = JSON.parse(res.data)
       if (res.id === this.id) {
         if (res.value) {
-          alert(res.value)
+          this.value = res.value
         } else {
           if (res.code === 0) {
             this.text = 'Action executed successfully'
