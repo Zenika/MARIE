@@ -15,7 +15,7 @@ MQTTClient client;
 String macAddr;
 StaticJsonBuffer<200> jsonBuffer;
 DHT dht(DHTPIN, DHTTYPE);
-
+int duration;
 void setup () {
   Bridge.begin();
   client.begin("10.0.10.3", 1883, net);
@@ -39,25 +39,34 @@ void getMACAddress () {
       macAddr.concat(c);
     }
   }
+  duration = micros();
+  heartbeat();
 }
 
 void connect () {
   while (!client.connect("marie_env")) {
   }
 
-  client.subscribe("get_temperature");
-  client.subscribe("get_humidity");
-  client.subscribe("get_luminosity");
+  client.subscribe("getter/temperature");
+  client.subscribe("location/couloir/getter/temperature");
+  client.subscribe("macaddress/" + macAddr + "/getter/temperature");
+  
+  client.subscribe("getter/humidity");
+  client.subscribe("location/couloir/getter/humidity");
+  client.subscribe("macaddress/" + macAddr + "/getter/humidity");
+ 
+  //client.subscribe("get_luminosity");
   client.publish("register", String("{\"macaddress\":\"" + macAddr + "\","
-                                     "\"type\": \"environment\","
-                                     "\"getters\":["
-                                     "{\"name\":\"temperature\","
-                                     "\"type\":\"number\"}"
-                                     "]}"));
+                                     "\"type\": \"environment\""
+                                     "}"));
 }
 
 // the loop function runs over and over again forever
 void loop() {
+  if (micros() - duration > 15000) {
+    heartbeat();
+  }
+  
   client.loop();
 
   if (!client.connected()) {
@@ -67,32 +76,33 @@ void loop() {
 
 void messageReceived(String topic, String payload, char * bytes, unsigned int length) {
   JsonObject& root = jsonBuffer.parseObject(payload);
-  String requiredMacAddress = root["macaddress"];
-  
-  if (requiredMacAddress == macAddr) {
-    if (topic == "get_temperature") {
-      float t = dht.readTemperature();
-      if (isnan(t)) {
-        client.publish("temperature_value", "{\"error\":\"NaN\"}");
-      } else {
-        client.publish("temperature_value", "{\"value\": " + String(t) + "}");
-      }
+  if (topic == "getter/temperature" || topic == "macaddress/" + macAddr + "/getter/temperature" || topic == "location/couloir/getter/temperature") {
+    float t = dht.readTemperature();
+    if (isnan(t)) {
+      client.publish("value/temperature", "{\"error\":\"NaN\"}");
+    } else {
+      client.publish("value/temperature", "{\"value\": " + String(t) + "}");
+    }
 
-    } else if (topic == "get_humidity") {
-      float h = dht.readHumidity();
-      if (isnan(h)) {
-        client.publish("humidity_value", "{\"error\":\"NaN\"}");
-      } else {
-        client.publish("humidity_value", "{\"value\": " + String(h) + "}");
-      }
-    } else if (topic == "get_luminosity") {
-      int l = analogRead(PHOTOPIN);
-      if (isnan(l)) {
-        client.publish("luminosity_value", "{\"error\":\"NaN\"}");
-      } else {
-        client.publish("luminosity_value", "{\"value\": " + String(l) + "}");
-      }
+  } else if (topic == "getter/humidity" || topic == "macaddress/" + macAddr + "/getter/humidity" || topic == "location/couloir/getter/humidity") {
+    float h = dht.readHumidity();
+    if (isnan(h)) {
+      client.publish("value/humidity", "{\"error\":\"NaN\"}");
+    } else {
+      client.publish("value/humidity", "{\"value\": " + String(h) + "}");
+    }
+  } else if (topic == "get_luminosity") {
+    int l = analogRead(PHOTOPIN);
+    if (isnan(l)) {
+      client.publish("luminosity_value", "{\"error\":\"NaN\"}");
+    } else {
+      client.publish("luminosity_value", "{\"value\": " + String(l) + "}");
     }
   }
   jsonBuffer.clear();
 }
+
+void heartbeat() {
+  client.publish("heartbeat", "{\"macaddress\":\"" + macAddr + "\"}");
+}
+

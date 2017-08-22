@@ -157,6 +157,7 @@ func heartbeat(payload []byte) {
 		return
 	}
 	if t.State == false {
+		t.State = true
 		err = t.SetState(true)
 		if err != nil {
 			log.Println(err)
