@@ -1,5 +1,9 @@
 <template>
   <div class="marie-things">
+    <div v-if="message" class="text-xs-center">
+      <h2>{{message}}</h2>
+      <v-btn @click.native="getThings">Retry</v-btn>
+    </div>
     <v-layout row wrap>
       <v-flex xs3 v-for="thing in things" :key="thing.id" >
         <marie-thing :thing="thing" @delete="deleteThing(thing)"></marie-thing>
@@ -18,7 +22,8 @@ export default {
   },
   data: function () {
     return {
-      things: []
+      things: [],
+      message: ''
     }
   },
   mounted () {
@@ -45,7 +50,12 @@ export default {
     getThings () {
       this.$http.get(process.env.API_URL + '/things')
         .then(res => res.data)
-        .then(res => { this.things = res || [] })
+        .then(res => { this.things = res || []; this.message = '' })
+        .catch(err => {
+          if (err) {
+            this.message = 'Application currently not available'
+          }
+        })
     },
     deleteThing: function (thing) {
       this.$http.delete(process.env.API_URL + '/things/' + thing.id)
