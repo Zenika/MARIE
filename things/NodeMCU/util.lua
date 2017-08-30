@@ -13,14 +13,22 @@ function doSubscribeGetter(client, location, getter)
 end
 
 function register(client, name, thingType, location, actions, getters)
+    actionsJSON = "[]"
+    gettersJSON = "[]"
+    if table.getn(actions) > 0 then
+        actionsJSON = cjson.encode(actions)
+    end
+    if table.getn(getters) > 0 then
+        gettersJSON = cjson.encode(getters)
+    end
     message = 
     '{'..
     '\"name\":\"' .. name .. '\",'..
     '\"type\":\"' .. thingType .. '\",'..   
     '\"location\":\"' .. location .. '\",'..
     '\"macaddress\":\"' .. wifi.ap.getmac() .. '\",'..
-    '\"actions\":' .. cjson.encode(actions) .. ','..
-    '\"getters\":' .. cjson.encode(getters)..
+    '\"actions\":' .. actionsJSON .. ','..
+    '\"getters\":' .. gettersJSON ..
     '}'
     for k, action in pairs(actions) do
         doSubscribeAction(client, thingType, location, action.name)
@@ -32,8 +40,13 @@ function register(client, name, thingType, location, actions, getters)
     client:publish("register", message, 0, 0, function(client) print("Registered") heartbeat(client) end)
 end
 
+function isAction(topic, action)
+    return string.match(topic, "action/" .. action .. "$") ~= nil
+end
+
 function heartbeat(client)
-    tmr.alarm(1, 1000, 1, function()
+    client:publish("heartbeat", "{\"macaddress\":\"" .. wifi.ap.getmac() .. "\"}", 0, 0, function() end)
+    tmr.alarm(1, 15000, 1, function()
         client:publish("heartbeat", "{\"macaddress\":\"" .. wifi.ap.getmac() .. "\"}", 0, 0, function() end)
     end)
 end
