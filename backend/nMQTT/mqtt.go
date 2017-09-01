@@ -108,6 +108,9 @@ func (c MqttConnection) Type() string {
 
 // Handle the request on mqtt
 func handle(msg *packet.Message, err error) {
+	if msg == nil {
+		return
+	}
 	if msg.Topic == "register" {
 		register(msg.Payload)
 		return
