@@ -39,7 +39,7 @@
                 <v-icon>keyboard_arrow_down</v-icon>
               </v-list-tile-action>
             </v-list-tile>
-            <v-list-tile v-tooltip:top="{ html: value, visible: true }" v-for="getter in thing.getters" :key="getter.name" @mouseover.native="doGetter(getter.name)">
+            <v-list-tile v-tooltip:top="{ html: value, visible: false }" v-for="getter in thing.getters" :key="getter.name" @mouseover.native="doGetter(getter.name)">
               <v-list-tile-content>
                 {{getter.type}} - {{getter.name}}
               </v-list-tile-content>
@@ -91,7 +91,7 @@ export default {
       state: false,
       snackbar: false,
       text: '',
-      value: 0
+      value: 'No value'
     }
   },
   mounted () {
@@ -122,12 +122,17 @@ export default {
       this.$emit('delete')
     },
     doAction: function (name) {
-      this.$http.post(process.env.API_URL + '/things/do', {name, macaddress: this.thing.macaddress})
-                .then(res => { this.id = res.data })
+      if (this.thing.state) {
+        this.$http.post(process.env.API_URL + '/things/do', {name, macaddress: this.thing.macaddress})
+                  .then(res => { this.id = res.data })
+      }
     },
     doGetter: function (name) {
-      this.$http.post(process.env.API_URL + '/things/get', {name, macaddress: this.thing.macaddress})
-                .then(res => { this.id = res.data })
+      if (this.thing.state) {
+        this.value = 'No value'
+        this.$http.post(process.env.API_URL + '/things/get', {name, macaddress: this.thing.macaddress})
+                  .then(res => { this.id = res.data })
+      }
     }
   }
 }
