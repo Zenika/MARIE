@@ -98,7 +98,7 @@ export default {
     this.$options.sockets.onmessage = (res) => {
       res = JSON.parse(res.data)
       if (res.id === this.id) {
-        if (res.value) {
+        if (res.value !== undefined) {
           this.value = res.value
         } else {
           if (res.code === 0) {

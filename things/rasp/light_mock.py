@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import sys
-from utils import return_code, isAction, getAction, isGetter, register, heartbeat
+from utils import return_code, respond, isAction, getAction, isGetter, register, heartbeat
 
 on = 0
 
@@ -10,10 +10,13 @@ def on_connect(mqttc, obj, flags, rc):
 def on_message(mqttc, obj, msg):
     print(msg.topic + " " + str(msg.payload))
     global on
-    on = 0
     if isAction(msg.topic, "on"):
       on = 1
+    elif isAction(msg.topic, "off"):
+      on = 0
     return_code(mqttc, getAction(msg.topic), 0)
+    if isGetter(msg.topic, "state"):
+      respond(mqttc, "state", on)
 
 
 mqttc = mqtt.Client()
@@ -25,7 +28,12 @@ actions = [
   { "name": "on"},
   { "name": "off"}
 ]
-getters = []
+getters = [
+  { 
+    "name": "state",
+    "type": "boolean"
+  }
+]
 
 register(mqttc, "Lumiere_mock", "light", "couloir", actions, getters)
 
