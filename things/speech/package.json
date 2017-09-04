@@ -10,6 +10,8 @@
   "license": "MIT",
   "dependencies": {
     "@google-cloud/speech": "^0.10.2",
+    "getmac": "^1.2.1",
+    "mqtt": "^2.12.0",
     "node-record-lpcm16": "^0.3.0",
     "snowboy": "^1.2.0",
     "websocket": "^1.0.24"

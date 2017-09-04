@@ -6,6 +6,42 @@ const W3CWebSocket = require('websocket').w3cwebsocket;
 
 const client = new W3CWebSocket('ws://localhost:8081/ws');
 
+const mqtt = require('mqtt')
+const mqttc = mqtt.connect('mqtt://10.0.10.3:1883')
+
+let mac = '';
+
+
+
+mqttc.on('connect', () => {
+  console.log('MQTT connected')
+  require('getmac').getMac((err, macaddr) => {
+    if (err) {
+      throw err
+    }
+    mac = macaddr
+    mqttc.publish('register', JSON.stringify({
+      "name": "Speech",
+      "type": "speech",
+      "macaddress": mac,
+      "location": "couloir"
+    }), {}, () => {
+      heartbeat()
+    })
+  })
+})
+
+mqttc.on('message', (topic, message) => {
+  console.log(topic)
+})
+
+function heartbeat() {
+  mqttc.publish('heartbeat', JSON.stringify({
+    "macaddress": mac
+  }))
+  setTimeout(() => {heartbeat()}, 15000)
+}
+
 client.onerror = err => {
   console.log('Connection error ')
   throw JSON.stringify(err);
@@ -42,6 +78,7 @@ detector.on('error', function () {
 });
 
 detector.on('hotword', (index, hotword) => {
+  mqttc.publish('start_speech')
   const speechClient = Speech({
     projectId: require('./config').projectId,
     keyFilename: './keyfile.json'
@@ -62,8 +99,9 @@ detector.on('hotword', (index, hotword) => {
     .on('data', (data) => {
       if (data.results[0] && data.results[0].alternatives[0]) {
         console.log(data.results[0].alternatives[0].transcript)
-        const message = {type: "speech", message: data.results[0].alternatives[0].transcript}
-        client.send(JSON.stringify({type: "speech", message: data.results[0].alternatives[0].transcript}).toString())
+        const message = {type: 'speech', message: data.results[0].alternatives[0].transcript}
+        mqttc.publish('speech', JSON.stringify({'message': message}))
+        client.send(JSON.stringify({type: 'speech', message: message}).toString())
       } else {
         console.log('Reached transcription time limit, press Ctrl+C')
       }
