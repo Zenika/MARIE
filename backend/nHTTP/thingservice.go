@@ -120,7 +120,7 @@ func Do(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	id := uuid.NewV4().String()
-	network.DoMacAddress(id, dr.MacAddress, dr.Name, nil)
+	network.DoMacAddress(id, dr.MacAddress, dr.Name, dr.Parameters)
 	w.Write([]byte(id))
 }
 

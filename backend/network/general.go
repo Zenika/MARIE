@@ -1,13 +1,15 @@
 package network
 
+import "github.com/Zenika/MARIE/backend/thing"
+
 // Protocol represents a thing with a certain protocol
 type Protocol interface {
 	Type() string
 
 	// Actions
-	DoAll(id string, thingType string, action string, params map[string]interface{})
-	DoLocation(id string, thingType string, location string, action string, params map[string]interface{})
-	DoMacAddress(id string, action string, macaddress string, params map[string]interface{})
+	DoAll(id string, thingType string, action string, params []thing.Parameter)
+	DoLocation(id string, thingType string, location string, action string, params []thing.Parameter)
+	DoMacAddress(id string, action string, macaddress string, params []thing.Parameter)
 
 	GetAll(id string, getter string)
 	GetLocation(id string, location string, getter string)

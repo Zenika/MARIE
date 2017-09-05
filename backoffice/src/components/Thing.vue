@@ -23,7 +23,7 @@
                 <v-icon>keyboard_arrow_down</v-icon>
               </v-list-tile-action>
             </v-list-tile>
-            <v-list-tile v-for="action in thing.actions" :key="action.name" @click.native="doAction(action.name)">
+            <v-list-tile v-for="action in thing.actions" :key="action.name" @click.native="doAction(action)">
               <v-list-tile-content>
                 {{action.name}}
               </v-list-tile-content>
@@ -76,6 +76,21 @@
     {{text}}
     <v-btn flat class="pink--text" @click.native="snackbar = false">Close</v-btn>
     </v-snackbar>
+    <v-dialog v-model="actionDialog" persistent>
+      <v-card>
+        <v-card-title>
+          <span class="headline">User Profile</span>
+        </v-card-title>
+        <v-card-text>
+          <v-text-field v-model="parameter.value" v-for="parameter of parameters" :key="parameter.name" :label="parameter.name"></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn class="blue--text darken-1" flat @click.native="actionDialog = false">Cancel</v-btn>
+          <v-btn class="blue--text darken-1" flat @click.native="doActionWithParameters()">Send</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -85,12 +100,15 @@ export default {
   props: ['thing'],
   data () {
     return {
+      action: '',
+      actionDialog: false,
       dialog: false,
       test: true,
       id: '',
       state: false,
       snackbar: false,
       text: '',
+      parameters: [],
       value: 'No value'
     }
   },
@@ -121,10 +139,16 @@ export default {
       this.dialog = false
       this.$emit('delete')
     },
-    doAction: function (name) {
+    doAction: function (action) {
       if (this.thing.state) {
-        this.$http.post(process.env.API_URL + '/things/do', {name, macaddress: this.thing.macaddress})
-                  .then(res => { this.id = res.data })
+        if (action.parameters.length > 0) {
+          this.parameters = action.parameters
+          this.action = action.name
+          this.actionDialog = true
+        } else {
+          this.$http.post(process.env.API_URL + '/things/do', {name: action.name, macaddress: this.thing.macaddress})
+                    .then(res => { this.id = res.data })
+        }
       }
     },
     doGetter: function (name) {
@@ -133,6 +157,11 @@ export default {
         this.$http.post(process.env.API_URL + '/things/get', {name, macaddress: this.thing.macaddress})
                   .then(res => { this.id = res.data })
       }
+    },
+    doActionWithParameters: function () {
+      this.actionDialog = false
+      this.$http.post(process.env.API_URL + '/things/do', {name: this.action, macaddress: this.thing.macaddress, parameters: this.parameters})
+                .then(res => { this.id = res.data; this.parameters = []; this.action = '' })
     }
   }
 }
@@ -146,6 +175,14 @@ h1, h2 {
 
 a {
   text-decoration: none;
+}
+
+.list__tile {
+  padding-left: 0px;
+}
+
+.list--group .list__tile {
+  padding-left: 0px;
 }
 
 </style>

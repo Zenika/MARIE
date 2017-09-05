@@ -34,8 +34,9 @@ type Action struct {
 
 // Parameter represents what an action needs to be executed
 type Parameter struct {
-	Name string `json:"name"`
-	Type string `json:"type"`
+	Name  string      `json:"name"`
+	Type  string      `json:"type"`
+	Value interface{} `json:"value"`
 }
 
 // Getter represents what information a thing can give
@@ -46,8 +47,9 @@ type Getter struct {
 
 // DoRequest represents a request to do something
 type DoRequest struct {
-	Name       string `json:"name"`
-	MacAddress string `json:"macaddress"`
+	Name       string      `json:"name"`
+	MacAddress string      `json:"macaddress"`
+	Parameters []Parameter `json:"parameters"`
 }
 
 // GetRequest represents a request to get something
