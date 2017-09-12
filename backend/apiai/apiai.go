@@ -1,7 +1,7 @@
 package apiai
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/Zenika/MARIE/backend/config"
 	"github.com/Zenika/MARIE/backend/network"
@@ -23,7 +23,7 @@ func Analyze(req string) map[string]interface{} {
 
 	resp, err := ai.SendText(req)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	res := resp.Result
 	return request(res)
@@ -43,8 +43,9 @@ func request(res apiaigo.Result) map[string]interface{} {
 		// 	return map[string]interface{}{"error": err.Error()}
 		// }
 		return map[string]interface{}{
-			"executing": id,
-			"message":   res.Fulfillment.Speech,
+			"variable": res.Parameters["variable-name"],
+			"id":       id,
+			"message":  res.Fulfillment.Speech,
 		}
 	}
 

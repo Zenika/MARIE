@@ -15,6 +15,11 @@
           </v-list-tile-action>
         </v-list-tile>
       </router-link>
+      <router-link to="/speech-test">
+        <v-list-tile class="mt-3">
+          Speech
+        </v-list-tile>
+      </router-link>
     </v-list>
   </v-navigation-drawer>
 </template>
