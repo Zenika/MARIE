@@ -1,18 +1,17 @@
 import paho.mqtt.client as mqtt
 import json
 from time import sleep
-from utils import respond, return_code, isAction, isGetter, register, getAction, heartbeat
+from utils import getParam, respond, return_code, isAction, isGetter, register, getAction, heartbeat
 
 def on_connect(mqttc, obj, flags, rc):
     print("Connected")
 
 def on_message(mqttc, obj, msg):
-    print(msg.topic + " " + str(msg.payload))
+    payload = str(msg.payload)
+    print(msg.topic + " " + payload)
     if isAction(msg.topic, "heat"):
-        data = json.loads(str(msg.payload))
-        temperature = filter(lambda x: x["name"] == "temperature", data)[0]
-        print(temperature["value"])
-        return_code(mqttc, getAction(msg.topic), 0)
+        print(getParam(msg.payload, "temperature"))
+        return_code(mqttc, payload, 0)
 
 mqttc = mqtt.Client()
 mqttc.on_message = on_message

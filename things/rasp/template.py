@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 from time import sleep
-from utils import register
+from utils import register, heartbeat
 
 def on_connect(mqttc, obj, flags, rc):
     print("Connected")
@@ -21,6 +21,7 @@ getters = []
 
 register(mqttc, "Template", "template", "location_template", actions, getters)
 
+heartbeat([mqttc])
 
 rc = 0
 while rc == 0:

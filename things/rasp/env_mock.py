@@ -6,13 +6,14 @@ def on_connect(mqttc, obj, flags, rc):
     print("Connected")
 
 def on_message(mqttc, obj, msg):
-    print(msg.topic + " " + str(msg.payload))
+    payload = str(msg.payload)
+    print(msg.topic + " " + payload)
     if isGetter(msg.topic, "humidity"):
       humidity = random.randint(0, 100)
-      respond(mqttc, "humidity", humidity)
+      respond(mqttc, payload, "humidity", humidity)
     if isGetter(msg.topic, "temperature"):
       temperature = random.randint(0, 30)
-      respond(mqttc, "temperature", temperature)
+      respond(mqttc, payload, "temperature", temperature)
 
 
 mqttc = mqtt.Client()

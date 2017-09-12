@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 from time import sleep
-from utils import respond, isAction, isGetter, register
+from utils import respond, isAction, isGetter, registern heartbeat
 import Adafruit_DHT
 
 sensor = 22
@@ -10,14 +10,15 @@ def on_connect(mqttc, obj, flags, rc):
     print("Connected")
 
 def on_message(mqttc, obj, msg):
-    print(msg.topic + " " + str(msg.payload))
+    payload = str(msg.payload)
+    print(msg.topic + " " + payload)
     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
     if isGetter(msg.topic, "humidity"):
       if humidity is not None:
-         respond(mqttc, "humidity", humidity)
+         respond(mqttc, payload, "humidity", humidity)
     if isGetter(msg.topic, "temperature"):
       if temperature is not None:
-        respond(mqttc, "temperature", temperature)
+        respond(mqttc, payloadn "temperature", temperature)
 
 
 mqttc = mqtt.Client()
@@ -39,6 +40,8 @@ getters = [
 ]
 
 register(mqttc, "Environnement", "env", "couloir", actions, getters)
+
+heartbeat([mqttc])
 
 rc = 0
 while rc == 0:

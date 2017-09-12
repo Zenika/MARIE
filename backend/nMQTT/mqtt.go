@@ -76,11 +76,14 @@ func InitMQTT() {
 	}
 	mqtt.Subscribe("register", 0)
 	mqtt.Subscribe("heartbeat", 0)
+	mqtt.Subscribe("return", 0)
 	mqttConn = MqttConnection{
 		get:  make(chan string),
 		do:   make(chan string),
 		mqtt: mqtt,
 	}
+	go mqttRoutine(mqttConn.do)
+	go mqttRoutine(mqttConn.get)
 	log.Println("MQTT client started")
 }
 
@@ -94,11 +97,6 @@ func (c MqttConnection) AddGetSubscription(topic string) {
 	c.mqtt.Subscribe(topic, 0)
 	c.mqtt.Subscribe(topic+"_value", 0)
 	c.mqtt.Subscribe("value/"+topic, 0)
-}
-
-// AddDoSubscription add subscription on a topic for actions
-func (c MqttConnection) AddDoSubscription(topic string) {
-	c.mqtt.Subscribe("return/"+topic, 0)
 }
 
 // Type returns the type of the connection
@@ -123,14 +121,12 @@ func handle(msg *packet.Message, err error) {
 
 	// See if topic begins with value
 	match, _ := regexp.MatchString("^value", msg.Topic)
-
 	if match {
 		mqttConn.get <- string(msg.Payload)
 		return
 	}
 
 	match, _ = regexp.MatchString("^return", msg.Topic)
-
 	if match {
 		mqttConn.do <- string(msg.Payload)
 		return
@@ -207,15 +203,9 @@ func register(payload []byte) {
 	nWS.BroadcastJSON(msg)
 }
 
-func mqttRoutine(c chan string, id string) {
-	message := <-c
-
-	var res map[string]interface{}
-	err := json.Unmarshal([]byte(message), &res)
-	if err != nil {
-		log.Println(err)
-		return
+func mqttRoutine(c chan string) {
+	for {
+		message := <-c
+		nWS.Broadcast([]byte(message))
 	}
-	res["id"] = id
-	nWS.BroadcastJSON(res)
 }
