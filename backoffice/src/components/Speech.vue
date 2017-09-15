@@ -29,7 +29,6 @@ export default {
   mounted: function () {
     this.$options.sockets.onmessage = (data) => {
       data = JSON.parse(data.data)
-      console.log(data)
       this.result.action = data.doing || ''
       this.result.getter = data.variable || ''
       this.result.id = data.id

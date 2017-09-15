@@ -1,41 +1,42 @@
 <template>
   <div class="marie-thing-form">
+    {{thing}}
     <form @submit.stop.prevent="create">
       <v-text-field
         label="Name"
         value=""
-        v-model="name"
+        v-model="thing.name"
         :rules="[rules.required]"
         single-line
       ></v-text-field>
       <v-text-field
         label="Mac Address"
         value=""
-        v-model="macaddress"
+        v-model="thing.macaddress"
         single-line
       ></v-text-field>
       <v-text-field
         label="IP Address"
         value=""
-        v-model="ipaddress"
+        v-model="thing.ipaddress"
         single-line
       ></v-text-field>   
       <v-text-field
         label="Type"
         value=""
-        v-model="type"
+        v-model="thing.type"
         :rules="[rules.required]"
         single-line
       ></v-text-field>    
       <v-text-field
         label="Location"
         value=""
-        v-model="location"
+        v-model="thing.location"
         single-line
       ></v-text-field>   
       <v-select
         v-bind:items="protocols"
-        v-model="protocol"
+        v-model="thing.protocol"
         label="Protocol"
         single-line
         bottom
@@ -49,7 +50,7 @@
         v-model="newAction"
         @keydown.native.enter.prevent="addAction"
       ></v-text-field>
-      <v-card v-for="action in actions" :key="action.id">
+      <v-card v-for="action in thing.actions" :key="action.id">
         <v-card-title primary-title>
           <v-text-field
             label="Action name"
@@ -94,7 +95,6 @@
         </v-card-text>
       </v-card>
   
-
       <h5>Getters</h5>
       <v-layout>
         <v-text-field
@@ -110,7 +110,7 @@
           @keydown.native.enter.prevent="addGetter"
         ></v-text-field>
       </v-layout>
-      <v-card v-for="getter in getters" :key="getter.id">
+      <v-card v-for="getter in thing.getters" :key="getter.id">
         <v-card-text>
           <v-layout>
             <v-text-field
@@ -128,32 +128,25 @@
           </v-layout>
         </v-card-text>
       </v-card>
-      <v-btn v-if="!id" type="submit">Create</v-btn>
-      <v-btn v-if="id" type="submit">Update</v-btn>
+      <v-btn v-if="!thing.id" type="submit">Create</v-btn>
+      <v-btn v-if="thing.id" type="submit">Update</v-btn>
     </form>
   </div>
 </template>
 
 <script>
-import router from '@/router/index'
+import ThingModel from '../models/thing'
 export default {
   name: 'marie-thing-form',
   data: () => {
     return {
-      id: '',
-      name: '',
-      type: '',
-      protocol: '',
-      location: '',
-      actions: [],
+      thing: ThingModel,
       newAction: '',
       newParamName: '',
       newParamType: '',
       newGetterName: '',
       newGetterType: '',
       macaddress: '',
-      ipaddress: '',
-      getters: [],
       protocols: [ 'MQTT', 'HTTP' ],
       rules: {
         required: (value) => !!value || 'Required.'
@@ -162,21 +155,13 @@ export default {
   },
   mounted () {
     if (this.$route.params.id) {
-      this.getThing(this.$route.params.id)
+      this.thing = this.$store.getters.thing(this.$route.params.id)
     }
   },
   watch: {
     '$route.params.id': function (id) {
       if (this.$route.params.id === undefined) {
-        this.id = ''
-        this.name = ''
-        this.type = ''
-        this.protocol = ''
-        this.location = ''
-        this.actions = []
-        this.getters = []
-        this.macaddress = ''
-        this.ipaddress = ''
+        this.thing = new ThingModel()
         this.newParamName = ''
         this.newParamType = ''
         this.newGetterName = ''
@@ -186,66 +171,43 @@ export default {
   },
   methods: {
     create () {
-      if (!this.name || !this.type || !this.protocol) {
+      if (!this.thing.name || !this.thing.type || !this.thing.protocol) {
         return
       }
       for (const g in this.getters) {
-        if (!this.getters[g].name || !this.getters[g].type) {
+        if (!this.thing.getters[g].name || !this.thing.getters[g].type) {
           return
         }
       }
-      for (const a in this.actions) {
-        if (!this.actions[a].name) {
+      const actions = this.thing.actions
+      for (const a in actions) {
+        if (!actions[a].name) {
           return
         }
-        const action = this.actions[a]
+        const action = actions[a]
         for (const p in action.parameters) {
           if (!action.parameters[p].name || !action.parameters[p].type) {
             return
           }
         }
       }
-      const thing = {
-        id: this.id,
-        name: this.name,
-        type: this.type,
-        protocol: this.protocol,
-        actions: this.actions,
-        getters: this.getters,
-        location: this.location,
-        macaddress: this.macaddress,
-        ipaddress: this.ipaddress
-      }
-      if (this.id) {
-        this.$http.put(process.env.API_URL + '/things', thing)
-          .then(res => router.push('/'))
-      } else {
-        this.$http.post(process.env.API_URL + '/things', thing)
-          .then(res => router.push('/'))
-      }
-    },
-    getThing (id) {
-      this.$http.get(process.env.API_URL + '/things/' + id)
-        .then(res => res.data)
-        .then(res => {
-          this.id = res.id
-          this.name = res.name
-          this.type = res.type
-          this.location = res.location
-          this.protocol = res.protocol
-          this.actions = res.actions
-          this.getters = res.getters
-          this.macaddress = res.macaddress
-          this.ipaddress = res.ipaddress
+      if (this.thing.id) {
+        this.$store.dispatch('updateThing', this.thing).then(() => {
+          this.$router.replace('/')
         })
+      } else {
+        this.$store.dispatch('createThing', this.thing).then(() => {
+          this.$router.replace('/')
+        })
+      }
     },
     addAction () {
-      this.actions.push({ name: this.newAction, parameters: [] })
+      this.thing.actions.push({ name: this.newAction, parameters: [] })
       this.newAction = ''
     },
     addGetter () {
       if (this.newGetterName !== '' && this.newGetterType !== '') {
-        this.getters.push({ name: this.newGetterName, type: this.newGetterType })
+        this.thing.getters.push({ name: this.newGetterName, type: this.newGetterType })
         this.newGetterName = ''
         this.newGetterType = ''
       }

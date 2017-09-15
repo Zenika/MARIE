@@ -79,7 +79,8 @@ func checkHeartBeat() {
 			if t.IsOnline() {
 				if t.State == true {
 					message := make(map[string]interface{})
-					message["state-off"] = t.MacAddress
+					message["topic"] = "state-off"
+					message["macaddress"] = t.MacAddress
 					nWS.BroadcastJSON(message)
 					t.SetState(false)
 				}

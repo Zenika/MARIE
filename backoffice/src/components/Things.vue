@@ -1,7 +1,7 @@
 <template>
   <div class="marie-things">
-    <div v-if="message" class="text-xs-center">
-      <h2>{{message}}</h2>
+    <div v-if="!things" class="text-xs-center">
+      <h2>Application currently not available</h2>
       <v-btn @click.native="getThings">Retry</v-btn>
     </div>
     <v-layout row wrap>
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Thing from '@/components/Thing'
 
 export default {
@@ -22,49 +23,23 @@ export default {
   },
   data: function () {
     return {
-      things: [],
       message: ''
     }
   },
-  mounted () {
+  created () {
     this.getThings()
-    this.$options.sockets.onmessage = (data) => {
-      const thing = JSON.parse(data.data)
-      let found
-      switch (thing.topic) {
-        case 'register':
-          this.things.push(JSON.parse(data.data))
-          break
-        case 'actions':
-          found = this.things.find(t => t.macaddress === thing.macaddress)
-          found.actions = thing.actions
-          break
-        case 'getters':
-          found = this.things.find(t => t.macaddress === thing.macaddress)
-          found.getters = thing.getters
-          break
-      }
-    }
   },
   methods: {
-    getThings () {
-      this.$http.get(process.env.API_URL + '/things')
-        .then(res => res.data)
-        .then(res => { this.things = res || []; this.message = '' })
-        .catch(err => {
-          if (err) {
-            this.message = 'Application currently not available'
-          }
-        })
+    getThings: function () {
+      this.$store.dispatch('getAllThings')
     },
     deleteThing: function (thing) {
-      this.$http.delete(process.env.API_URL + '/things/' + thing.id)
-                .then(() => {
-                  const index = this.things.findIndex(t => t.id === thing.id)
-                  this.things.splice(index, 1)
-                })
+      this.$store.dispatch('deleteThing', thing.id)
     }
-  }
+  },
+  computed: mapGetters([
+    'things'
+  ])
 }
 </script>
 

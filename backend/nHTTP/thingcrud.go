@@ -28,6 +28,13 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		nMQTT.GetConnection().AddGetSubscription(g.Name)
 	}
 
+	res, err := json.Marshal(t)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(res)
 }
 
 // GetThing get a thing

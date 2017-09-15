@@ -67,15 +67,6 @@
         </v-layout>
       </v-card-actions>
     </v-card>
-    <v-snackbar
-      :timeout="2000"
-      :bottom="true"
-      :right="true"
-      v-model="snackbar"
-    >
-    {{text}}
-    <v-btn flat class="pink--text" @click.native="snackbar = false">Close</v-btn>
-    </v-snackbar>
     <v-dialog v-model="actionDialog" persistent>
       <v-card>
         <v-card-title>
@@ -95,6 +86,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'marie-thing',
   props: ['thing'],
@@ -108,30 +101,7 @@ export default {
       state: false,
       snackbar: false,
       text: '',
-      parameters: [],
-      value: 'No value'
-    }
-  },
-  mounted () {
-    this.$options.sockets.onmessage = (res) => {
-      res = JSON.parse(res.data)
-      if (res.id === this.id) {
-        if (res.value !== undefined) {
-          this.value = res.value
-        } else {
-          if (res.code === 0) {
-            this.text = 'Action executed successfully'
-            this.snackbar = true
-          } else {
-            this.text = 'An error occured'
-            this.snackbar = true
-          }
-        }
-      } else if (res['state-off'] === this.thing.macaddress) {
-        this.thing.state = false
-      } else if (res['state-on'] === this.thing.macaddress) {
-        this.thing.state = true
-      }
+      parameters: []
     }
   },
   methods: {
@@ -146,24 +116,23 @@ export default {
           this.action = action.name
           this.actionDialog = true
         } else {
-          this.$http.post(process.env.API_URL + '/things/do', {name: action.name, macaddress: this.thing.macaddress})
-                    .then(res => { this.id = res.data })
+          this.$store.dispatch('doAction', {name: action.name, macaddress: this.thing.macaddress})
         }
       }
     },
     doGetter: function (name) {
       if (this.thing.state) {
-        this.value = 'No value'
-        this.$http.post(process.env.API_URL + '/things/get', {name, macaddress: this.thing.macaddress})
-                  .then(res => { this.id = res.data })
+        this.$store.dispatch('doGetter', {name, macaddress: this.thing.macaddress})
       }
     },
     doActionWithParameters: function () {
       this.actionDialog = false
-      this.$http.post(process.env.API_URL + '/things/do', {name: this.action, macaddress: this.thing.macaddress, parameters: this.parameters})
-                .then(res => { this.id = res.data; this.parameters = []; this.action = '' })
+      this.$store.dispatch('doAction', {name: this.action, macaddress: this.thing.macaddress, parameters: this.parameters})
     }
-  }
+  },
+  computed: mapGetters([
+    'value'
+  ])
 }
 </script>
 

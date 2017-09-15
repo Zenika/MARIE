@@ -19,8 +19,8 @@ import (
 // MqttConnection represents a connection with two chans for actions and getters
 type MqttConnection struct {
 	mqtt *client.Client
-	get  chan string
-	do   chan string
+	get  chan []byte
+	do   chan []byte
 }
 
 var mqttConn MqttConnection
@@ -78,8 +78,8 @@ func InitMQTT() {
 	mqtt.Subscribe("heartbeat", 0)
 	mqtt.Subscribe("return", 0)
 	mqttConn = MqttConnection{
-		get:  make(chan string),
-		do:   make(chan string),
+		get:  make(chan []byte),
+		do:   make(chan []byte),
 		mqtt: mqtt,
 	}
 	go mqttRoutine(mqttConn.do)
@@ -122,13 +122,13 @@ func handle(msg *packet.Message, err error) {
 	// See if topic begins with value
 	match, _ := regexp.MatchString("^value", msg.Topic)
 	if match {
-		mqttConn.get <- string(msg.Payload)
+		getterValueHandler(msg.Payload)
 		return
 	}
 
 	match, _ = regexp.MatchString("^return", msg.Topic)
 	if match {
-		mqttConn.do <- string(msg.Payload)
+		returnCodeHandler(msg.Payload)
 		return
 	}
 
@@ -141,6 +141,30 @@ func handle(msg *packet.Message, err error) {
 	}
 	r.Name = msg.Topic
 	r.Save()
+}
+
+func returnCodeHandler(payload []byte) {
+	var data map[string]interface{}
+	err := json.Unmarshal(payload, &data)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	data["topic"] = "action-done"
+	msgString, err := json.Marshal(data)
+	mqttConn.do <- msgString
+}
+
+func getterValueHandler(payload []byte) {
+	var data map[string]interface{}
+	err := json.Unmarshal(payload, &data)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	data["topic"] = "getter-value"
+	msgString, err := json.Marshal(data)
+	mqttConn.do <- msgString
 }
 
 func heartbeat(payload []byte) {
@@ -162,7 +186,8 @@ func heartbeat(payload []byte) {
 			log.Println(err)
 		}
 		msg := make(map[string]interface{})
-		msg["state-on"] = t.MacAddress
+		msg["topic"] = "state-on"
+		msg["macaddress"] = t.MacAddress
 		nWS.BroadcastJSON(msg)
 	}
 	t.UpdateHeartBeat()
@@ -203,9 +228,9 @@ func register(payload []byte) {
 	nWS.BroadcastJSON(msg)
 }
 
-func mqttRoutine(c chan string) {
+func mqttRoutine(c chan []byte) {
 	for {
 		message := <-c
-		nWS.Broadcast([]byte(message))
+		nWS.Broadcast(message)
 	}
 }
