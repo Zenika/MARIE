@@ -1,12 +1,12 @@
 import Vue from 'vue'
-import Router from 'vue-router'
+import VueRouter from 'vue-router'
 import Things from '@/components/Things'
 import ThingForm from '@/components/ThingForm'
 import Speech from '@/components/Speech'
 
-Vue.use(Router)
+Vue.use(VueRouter)
 
-export default new Router({
+export default new VueRouter({
   routes: [
     {
       path: '/',
@@ -19,7 +19,7 @@ export default new Router({
       component: ThingForm
     },
     {
-      path: '/thing-form/:id',
+      path: '/thing-form/:id?',
       name: 'marie-thing-form-update',
       component: ThingForm
     },

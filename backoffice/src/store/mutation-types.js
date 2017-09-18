@@ -8,3 +8,4 @@ export const ACTION_DONE = 'ACTION_DONE'
 export const GETTER_SENT = 'GETTER_SENT'
 
 export const SNACKBAR_CLOSED = 'SNACKBAR_CLOSED'
+export const CHANGE_SNACKBAR = 'CHANGE_SNACKBAR'

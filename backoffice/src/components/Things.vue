@@ -6,7 +6,7 @@
     </div>
     <v-layout row wrap>
       <v-flex xs3 v-for="thing in things" :key="thing.id" >
-        <marie-thing :thing="thing" @delete="deleteThing(thing)"></marie-thing>
+        <marie-thing :thing="thing"></marie-thing>
       </v-flex>
     </v-layout>
   </div>
@@ -14,7 +14,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Thing from '@/components/Thing'
+import Thing from '@/components/thing/Thing'
 
 export default {
   name: 'marie-things',
@@ -32,9 +32,6 @@ export default {
   methods: {
     getThings: function () {
       this.$store.dispatch('getAllThings')
-    },
-    deleteThing: function (thing) {
-      this.$store.dispatch('deleteThing', thing.id)
     }
   },
   computed: mapGetters([

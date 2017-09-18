@@ -3,26 +3,23 @@ import * as types from '../mutation-types'
 
 // Initial state
 const state = {
-  things: [],
-  actionControl: [],
-  getterControl: [],
-  snackbarText: '',
-  value: 'No value'
+  things: []
 }
 
 // Getters
 const getters = {
   things: state => state.things,
-  thing: state => id => state.things.find(t => t.id === id),
-  snackbarText: state => state.snackbarText,
-  value: state => state.value
+  thing: state => id => state.things.find(t => t.id === id)
 }
 
 // Actions
 const actions = {
   getAllThings ({commit}) {
-    thingService.get().then(things => {
-      commit(types.THINGS_RECEIVED, things)
+    return new Promise((resolve, reject) => {
+      thingService.get().then(things => {
+        commit(types.THINGS_RECEIVED, things)
+        resolve()
+      }).catch((err) => reject(err))
     })
   },
   deleteThing ({commit}, thingId) {
@@ -41,16 +38,6 @@ const actions = {
   createThing ({commit}, thing) {
     thingService.create(thing).then(thing => {
       commit(types.THING_CREATED, thing)
-    })
-  },
-  doAction ({commit}, params) {
-    thingService.do(params.name, params.macaddress, params.parameters).then(id => {
-      commit(types.ACTION_SENT, id)
-    })
-  },
-  doGetter ({commit}, params) {
-    thingService.getter(params.name, params.macaddress).then(id => {
-      commit(types.GETTER_SENT, id)
     })
   }
 }
@@ -71,43 +58,9 @@ const mutations = {
   [types.THING_CREATED] (state, thing) {
     state.things.push(thing)
   },
-  [types.ACTION_SENT] (state, id) {
-    const timer = setTimeout(() => { state.snackbarText = 'An error occurred' }, 5000)
-    state.actionControl.push({id, timer})
-  },
-  [types.SNACKBAR_CLOSED] (state) {
-    state.snackbarText = ''
-  },
-  [types.GETTER_SENT] (state, id) {
-    state.getterControl.push({id})
-  },
   SOCKET_ONMESSAGE (state, message) {
-    let t
-    let index
+    let t, index
     switch (message.topic) {
-      case 'actions':
-        index = state.things.findIndex(thing => thing.macaddress === message.macaddress)
-        t = state.things[index]
-        t.actions = message.actions
-        state.things.splice(index, 1, t)
-        break
-      case 'getters':
-        index = state.things.findIndex(thing => thing.macaddress === message.macaddress)
-        t = state.things[index]
-        t.getters = message.getters
-        state.things.splice(index, 1, t)
-        break
-      case 'getter-value':
-        index = state.getterControl.findIndex(id => id.id === message.id)
-        state.getterControl.splice(index, 1)
-        state.value = message.value
-        break
-      case 'action-done':
-        index = state.actionControl.findIndex(id => id.id === message.id)
-        clearTimeout(state.actionControl[index].timer)
-        state.actionControl.splice(index, 1)
-        state.snackbarText = 'Action executed successfully'
-        break
       case 'register':
         state.things.push(message)
         break

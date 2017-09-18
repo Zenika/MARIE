@@ -24,28 +24,13 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'marie-speech',
-  mounted: function () {
-    this.$options.sockets.onmessage = (data) => {
-      data = JSON.parse(data.data)
-      this.result.action = data.doing || ''
-      this.result.getter = data.variable || ''
-      this.result.id = data.id
-      this.result.location = data.in
-      this.result.type = data.on
-    }
-  },
   data: function () {
     return {
-      command: '',
-      result: {
-        id: '',
-        action: '',
-        location: '',
-        type: '',
-        getter: ''
-      }
+      command: ''
     }
   },
   methods: {
@@ -59,7 +44,10 @@ export default {
       this.$socket.sendObj(req)
       this.command = ''
     }
-  }
+  },
+  computed: mapGetters([
+    'result'
+  ])
 }
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer class="pb-0" persistent absolute height="100%" clipped enable-resize-watcher v-model="drawer">
+  <v-navigation-drawer class="pb-0" persistent absolute height="100%" clipped enable-resize-watcher v-model="localDrawer">
     <v-list dense>
       <router-link to="/">
         <v-list-tile class="mt-3">
@@ -27,7 +27,17 @@
 <script>
 export default {
   name: 'marie-nav',
-  props: [ 'drawer' ]
+  props: [ 'drawer' ],
+  data: function () {
+    return {
+      localDrawer: this.drawer
+    }
+  },
+  watch: {
+    drawer (value) {
+      this.localDrawer = this.drawer
+    }
+  }
 }
 </script>
 

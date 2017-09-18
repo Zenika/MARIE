@@ -1,6 +1,5 @@
 <template>
   <div class="marie-thing-form">
-    {{thing}}
     <form @submit.stop.prevent="create">
       <v-text-field
         label="Name"
@@ -155,7 +154,13 @@ export default {
   },
   mounted () {
     if (this.$route.params.id) {
-      this.thing = this.$store.getters.thing(this.$route.params.id)
+      if (this.$store.getters.things.length === 0) {
+        this.$store.dispatch('getAllThings').then(() => {
+          this.getThing(this.$route.params.id)
+        })
+      } else {
+        this.getThing(this.$route.params.id)
+      }
     }
   },
   watch: {
@@ -193,11 +198,11 @@ export default {
       }
       if (this.thing.id) {
         this.$store.dispatch('updateThing', this.thing).then(() => {
-          this.$router.replace('/')
+          this.$router.push('/')
         })
       } else {
         this.$store.dispatch('createThing', this.thing).then(() => {
-          this.$router.replace('/')
+          this.$router.push('/')
         })
       }
     },
@@ -217,6 +222,14 @@ export default {
         action.parameters.push({ name: this.newParamName, type: this.newParamType })
         this.newParamName = ''
         this.newParamType = ''
+      }
+    },
+    getThing (id) {
+      const thing = this.$store.getters.thing(id)
+      if (thing === undefined) {
+        this.$store.dispatch('changeSnackbar', 'Thing not found')
+      } else {
+        this.thing = thing
       }
     }
   }

@@ -46,6 +46,7 @@ func request(res apiaigo.Result) map[string]interface{} {
 			"variable": res.Parameters["variable-name"],
 			"id":       id,
 			"message":  res.Fulfillment.Speech,
+			"topic":    "speech-getter",
 		}
 	}
 
@@ -62,6 +63,7 @@ func request(res apiaigo.Result) map[string]interface{} {
 			"in":      res.Parameters["location"],
 			"message": res.Fulfillment.Speech,
 			"id":      id,
+			"topic":   "speech-action",
 		}
 	}
 	return map[string]interface{}{"message": res.Fulfillment.Speech}
