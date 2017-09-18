@@ -1,8 +1,17 @@
 import json
 import threading
 
+heartbeat_time = 1000
+
+def setHeartbeat(msg):
+  global heartbeat_time
+  data = json.loads(msg)
+  heartbeat = data["time"]
+
 def heartbeat(mqttc):
-  t = threading.Timer(15.0, heartbeat, [mqttc])
+  global heartbeat_time
+  t = threading.Timer(heartbeat_time / 1000, heartbeat, [mqttc])
+  print(heartbeat_time)
   t.start()
   message = {"macaddress": getmac("wlan0")}
   mqttc[0].publish("heartbeat", json.dumps(message), qos=2)
@@ -59,6 +68,7 @@ def getParam(msg, paramName):
   return param["value"]
 
 def register(mqttc, name, thingType, location, actions, getters):
+  mqttc.subscribe("heartbeat_time")
   macaddress = getmac("wlan0")
   for action in actions:
     doSubscribeActions(mqttc, thingType, location, macaddress, action["name"])

@@ -1,12 +1,15 @@
 import paho.mqtt.client as mqtt
 from time import sleep
-from utils import register, heartbeat
+from utils import setHeartbeat, register, heartbeat
 
 def on_connect(mqttc, obj, flags, rc):
     print("Connected")
 
 def on_message(mqttc, obj, msg):
     print(msg.topic + " " + str(msg.payload))
+    if msg.topic == "heartbeat_time":
+      setHeartbeat(msg.payload)
+      heartbeat([mqttc])
 
 
 mqttc = mqtt.Client()

@@ -110,7 +110,16 @@ func handle(msg *packet.Message, err error) {
 		return
 	}
 	if msg.Topic == "register" {
+		cfg := config.Load()
 		register(msg.Payload)
+		heartbeatMsg := make(map[string]int)
+		heartbeatMsg["time"] = cfg.HeartbeatTimer
+		heartbeatMsgByt, err := json.Marshal(heartbeatMsg)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		mqttConn.mqtt.Publish("heartbeat_time", heartbeatMsgByt, 0, false)
 		return
 	}
 

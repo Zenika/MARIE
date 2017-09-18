@@ -18,8 +18,10 @@ function init_mqtt()
     m:on("message", function(client, topic, data)
         if isAction(topic, "on") then
             gpio.write(pin, gpio.HIGH)
-        else
+        else if isAction(topic, "off")
             gpio.write(pin, gpio.LOW)
+        else
+            setHeartbeat(data.time)
         end
         print(topic .. ":")
         if data ~= nil then

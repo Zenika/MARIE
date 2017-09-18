@@ -136,6 +136,6 @@ func (t Thing) UpdateHeartBeat() error {
 }
 
 // IsOnline checks the state to see if thing is online
-func (t Thing) IsOnline() bool {
-	return time.Since(t.LastHeartBeat).Seconds() > 15
+func (t Thing) IsOnline(heartbeatTimer int) bool {
+	return time.Since(t.LastHeartBeat).Seconds() > float64(heartbeatTimer/1000)
 }

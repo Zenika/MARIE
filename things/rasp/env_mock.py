@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import random
-from utils import respond, isAction, isGetter, register, heartbeat
+from utils import setHeartbeat, respond, isAction, isGetter, register, heartbeat
 
 def on_connect(mqttc, obj, flags, rc):
     print("Connected")
@@ -14,7 +14,9 @@ def on_message(mqttc, obj, msg):
     if isGetter(msg.topic, "temperature"):
       temperature = random.randint(0, 30)
       respond(mqttc, payload, "temperature", temperature)
-
+    elif msg.topic == "heartbeat_time":
+      setHeartbeat(msg.payload)
+      heartbeat([mqttc])
 
 mqttc = mqtt.Client()
 mqttc.on_message = on_message

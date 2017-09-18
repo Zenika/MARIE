@@ -1,7 +1,7 @@
 <template>
   <div class="marie-things">
-    <div v-if="!things" class="text-xs-center">
-      <h2>Application currently not available</h2>
+    <div v-if="message" class="text-xs-center">
+      <h2>{{message}}</h2>
       <v-btn @click.native="getThings">Retry</v-btn>
     </div>
     <v-layout row wrap>
@@ -32,6 +32,8 @@ export default {
   methods: {
     getThings: function () {
       this.$store.dispatch('getAllThings')
+                 .then(() => { this.message = '' })
+                 .catch(() => { this.message = 'Application currently not available' })
     }
   },
   computed: mapGetters([

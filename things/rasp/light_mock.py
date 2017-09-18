@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import sys
-from utils import return_code, respond, isAction, getAction, isGetter, register, heartbeat
+from utils import setHeartbeat, return_code, respond, isAction, getAction, isGetter, register, heartbeat
 
 on = 0
 
@@ -19,6 +19,9 @@ def on_message(mqttc, obj, msg):
       return_code(mqttc, payload, 0)
     elif isGetter(msg.topic, "state"):
       respond(mqttc, payload, "state", on)
+    elif msg.topic == "heartbeat_time":
+      setHeartbeat(msg.payload)
+      heartbeat([mqttc])
 
 
 mqttc = mqtt.Client()
@@ -39,12 +42,6 @@ getters = [
 
 register(mqttc, "Lumiere_mock", "light", "couloir", actions, getters)
 
-timer = heartbeat([mqttc])
-
 rc = 0
-try:
-  while rc == 0:
-    rc = mqttc.loop()
-except KeyboardInterrupt:
-  timer.cancel()
-  sys.exit()
+while rc == 0:
+  rc = mqttc.loop()

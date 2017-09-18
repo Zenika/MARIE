@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Zenika/MARIE/backend/config"
 	"github.com/Zenika/MARIE/backend/nHTTP"
 	"github.com/Zenika/MARIE/backend/nMQTT"
 	"github.com/Zenika/MARIE/backend/nWS"
@@ -69,6 +70,7 @@ func (a *App) initializeRoutes() {
 }
 
 func checkHeartBeat() {
+	cfg := config.Load()
 	for {
 		things, err := thing.ReadAll()
 		if err != nil {
@@ -76,7 +78,7 @@ func checkHeartBeat() {
 			return
 		}
 		for _, t := range things {
-			if t.IsOnline() {
+			if t.IsOnline(cfg.HeartbeatTimer) {
 				if t.State == true {
 					message := make(map[string]interface{})
 					message["topic"] = "state-off"
@@ -86,6 +88,7 @@ func checkHeartBeat() {
 				}
 			}
 		}
-		time.Sleep(15000 * time.Millisecond)
+		log.Println(cfg.HeartbeatTimer)
+		time.Sleep(time.Duration(cfg.HeartbeatTimer) * time.Millisecond)
 	}
 }

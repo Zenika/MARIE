@@ -3,5 +3,6 @@
   "database-name": "MARIE",
   "database-url": "mongodb://mongodb",
   "mqtt-url": "mqtt://MQTT-URL",
-  "mqtt-id": "MQTT-ID"
+  "mqtt-id": "MQTT-ID",
+  "heartbeat-timer": "15000"
 }

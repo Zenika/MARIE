@@ -20,6 +20,12 @@ export default new Vuex.Store({
   mutations: {
     SOCKET_ONOPEN (state) {
       this.dispatch('changeSnackbar', 'Connected to server with websockets')
+    },
+    SOCKET_ONERROR (state) {
+      this.dispatch('changeSnackbar', 'An error occured')
+    },
+    SOCKET_ONCLOSE (state) {
+      this.dispatch('changeSnackbar', 'Socket closed')
     }
   }
 })

@@ -10,11 +10,12 @@ var cfg Configuration
 
 // Configuration represent the configuration of the application
 type Configuration struct {
-	APIAiToken string `json:"apiai-token"`
-	DbName     string `json:"database-name"`
-	DbURL      string `json:"database-url"`
-	MQTTUrl    string `json:"mqtt-url"`
-	MQTTId     string `json:"mqtt-id"`
+	APIAiToken     string `json:"apiai-token"`
+	DbName         string `json:"database-name"`
+	DbURL          string `json:"database-url"`
+	MQTTUrl        string `json:"mqtt-url"`
+	MQTTId         string `json:"mqtt-id"`
+	HeartbeatTimer int    `json:"heartbeat-timer"`
 }
 
 // Load the configuration and save it

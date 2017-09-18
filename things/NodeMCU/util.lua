@@ -1,3 +1,4 @@
+heartbeat_time = 1000
 function doSubscribeAction(client, thingType, location, action)
     client:subscribe("type/" .. thingType .. "/action/" .. action, 0)
     client:subscribe("type/" .. thingType .. "/location/" .. location .. "/action/" .. action, 0)
@@ -13,6 +14,7 @@ function doSubscribeGetter(client, location, getter)
 end
 
 function register(client, name, thingType, location, actions, getters)
+    client:subscribe("heartbeat_time", 0)
     actionsJSON = "[]"
     gettersJSON = "[]"
     if table.getn(actions) > 0 then
@@ -40,13 +42,17 @@ function register(client, name, thingType, location, actions, getters)
     client:publish("register", message, 0, 0, function(client) print("Registered") heartbeat(client) end)
 end
 
+function setHeartbeat(time)
+    heartbeat_time = time
+end
+
 function isAction(topic, action)
     return string.match(topic, "action/" .. action .. "$") ~= nil
 end
 
 function heartbeat(client)
     client:publish("heartbeat", "{\"macaddress\":\"" .. wifi.ap.getmac() .. "\"}", 0, 0, function() end)
-    tmr.alarm(1, 15000, 1, function()
+    tmr.alarm(1, heartbeat_time, 1, function()
         client:publish("heartbeat", "{\"macaddress\":\"" .. wifi.ap.getmac() .. "\"}", 0, 0, function() end)
     end)
 end

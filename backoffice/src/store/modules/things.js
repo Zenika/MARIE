@@ -16,10 +16,12 @@ const getters = {
 const actions = {
   getAllThings ({commit}) {
     return new Promise((resolve, reject) => {
-      thingService.get().then(things => {
-        commit(types.THINGS_RECEIVED, things)
-        resolve()
-      }).catch((err) => reject(err))
+      thingService.get()
+                  .then(things => {
+                    commit(types.THINGS_RECEIVED, things)
+                    resolve()
+                  })
+                  .catch(err => reject(err))
     })
   },
   deleteThing ({commit}, thingId) {

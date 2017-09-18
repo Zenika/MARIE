@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 from gpiozero import LED
-from utils import return_code, respond, isAction, getAction, isGetter, register, heartbeat
+from utils import setHeartbeat, return_code, respond, isAction, getAction, isGetter, register, heartbeat
 
 led = LED(17)
 
@@ -21,6 +21,9 @@ def on_message(mqttc, obj, msg):
       return_code(mqttc, payload, 0)
     elif isGetter(msg.topic, "state"):
       respond(mqttc, payload, "state", on)
+    elif msg.topic == "heartbeat_time":
+      setHeartbeat(msg.payload)
+      heartbeat([mqttc])
 
 
 mqttc = mqtt.Client()

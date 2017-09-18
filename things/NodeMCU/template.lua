@@ -14,6 +14,7 @@ function init_mqtt()
         if data ~= nil then
             print(data)
         end
+        setHeartbeat(data.time)
     end)
     
     m:connect("10.0.10.3", 1883, 0, function(client)

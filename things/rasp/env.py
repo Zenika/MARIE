@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 from time import sleep
-from utils import respond, isAction, isGetter, registern heartbeat
+from utils import setHeartbeat, respond, isAction, isGetter, registern heartbeat
 import Adafruit_DHT
 
 sensor = 22
@@ -19,7 +19,9 @@ def on_message(mqttc, obj, msg):
     if isGetter(msg.topic, "temperature"):
       if temperature is not None:
         respond(mqttc, payloadn "temperature", temperature)
-
+    elif msg.topic == "heartbeat_time":
+      setHeartbeat(msg.payload)
+      heartbeat([mqttc])
 
 mqttc = mqtt.Client()
 mqttc.on_message = on_message
