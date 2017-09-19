@@ -3,12 +3,14 @@ import recordService from '../../api/record'
 
 const state = {
   datasetLabel: '',
-  chartData: []
+  chartData: [],
+  chartLabels: []
 }
 
 const getters = {
   datasetLabel: state => state.datasetLabel,
-  chartData: state => state.chartData
+  chartData: state => state.chartData,
+  chartLabels: state => state.chartLabels
 }
 
 const actions = {
@@ -26,8 +28,12 @@ const mutations = {
     state.datasetLabel = label
   },
   [types.CHART_DATA_CHANGED] (state, records) {
-    const data = records.map(r => { const {value} = r; return value })
+    const data = records.map(r => r.value)
     state.chartData = data
+    const labels = records.map(r => {
+      return new Date(r.date).getHours() + ':' + new Date(r.date).getMinutes() + ':' + new Date(r.date).getSeconds()
+    })
+    state.chartLabels = labels
   }
 }
 

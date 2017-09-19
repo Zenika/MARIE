@@ -16,5 +16,5 @@ type Record struct {
 	ThingID bson.ObjectId `json:"thing_id" bson:"thing_id"`
 	Name    string        `json:"name"`
 	Value   interface{}   `json:"value"`
-	Date    time.Time
+	Date    time.Time     `json:"date"`
 }

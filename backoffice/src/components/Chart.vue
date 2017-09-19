@@ -18,7 +18,7 @@ export default Line.extend({
   methods: {
     render () {
       this.renderChart({
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October'],
+        labels: this.chartLabels,
         datasets: [
           {
             label: this.datasetLabel,
@@ -32,7 +32,8 @@ export default Line.extend({
   },
   computed: mapGetters([
     'datasetLabel',
-    'chartData'
+    'chartData',
+    'chartLabels'
   ])
 })
 </script>
