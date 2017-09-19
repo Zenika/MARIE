@@ -17,7 +17,7 @@
       item-text="name"
       @input="changeGetter"
     ></v-select>
-    <marie-chart :height="100" :labels="labels" :datasetLabel="getter"></marie-chart>
+    <marie-chart v-if="getter !== ''" :height="100" :labels="labels" :datasetLabel="getter"></marie-chart>
   </div>
 </template>
 
