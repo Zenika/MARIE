@@ -12,14 +12,13 @@ export default Line.extend({
       this.render()
     },
     chartData (value) {
-      console.log(value)
       this.render()
     }
   },
   methods: {
     render () {
       this.renderChart({
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October'],
         datasets: [
           {
             label: this.datasetLabel,

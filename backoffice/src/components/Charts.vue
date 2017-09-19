@@ -54,7 +54,7 @@ export default {
     },
     changeGetter: function () {
       this.$store.commit(types.CHANGE_LABEL, this.getter)
-      this.$store.commit(types.CHART_DATA_CHANGED, this.data)
+      this.$store.dispatch('getRecords', {getter: this.getter, thingId: this.thingId})
     }
   },
   computed: mapGetters([

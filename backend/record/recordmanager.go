@@ -10,6 +10,20 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+func ReadAll(id bson.ObjectId, getter string) ([]Record, error) {
+	c, s := utils.Database(CollectionName)
+	defer s.Close()
+
+	r := []Record{}
+
+	err := c.Find(bson.M{"thing_id": id, "name": getter}).All(&r)
+	if err != nil {
+		return nil, err
+	}
+
+	return r, nil
+}
+
 // MeanLast of every things for a specific parameter
 func MeanLast(name string, l string) (float64, error) {
 	things, err := thing.ReadGetterName(name)
