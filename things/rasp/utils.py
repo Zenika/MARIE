@@ -48,6 +48,10 @@ def doSubscribeGetters(mqttc, location, macaddress, getter):
   mqttc.subscribe("location/" + location + "/getter/" + getter)
   print("Subscribed to " + getter + " getter")
 
+def record(mqttc, getter, value):
+  message = {"value": value, "macaddress": getmac("wlan0")}
+  mqttc.publish("record/" + getter, json.dumps(message), qos=2)
+
 def return_code(mqttc, msg, code):
   message = {"code": code, "id": getId(msg)}
   mqttc.publish("return", json.dumps(message), qos=2)

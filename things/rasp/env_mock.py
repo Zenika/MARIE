@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import random
-from utils import setHeartbeat, respond, isAction, isGetter, register, heartbeat
+from utils import record, setHeartbeat, respond, isAction, isGetter, register, heartbeat
 
 def on_connect(mqttc, obj, flags, rc):
     print("Connected")
@@ -38,7 +38,8 @@ getters = [
 
 register(mqttc, "Environnement_mock", "env", "couloir", actions, getters)
 
-heartbeat([mqttc])
+humidity = random.randint(0, 100)
+record(mqttc, "humidity", humidity)
 
 rc = 0
 while rc == 0:

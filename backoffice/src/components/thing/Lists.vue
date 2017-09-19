@@ -42,7 +42,7 @@ export default {
   methods: {
     doAction: function (action) {
       if (this.thing.state) {
-        if (action.parameters.length > 0) {
+        if (action.parameters && action.parameters.length > 0) {
           this.parameters = action.parameters
           this.action = action.name
           this.actionDialog = true

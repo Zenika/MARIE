@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/Zenika/MARIE/backend/config"
@@ -53,13 +54,13 @@ func InitMQTT() {
 	for _, t := range things {
 		if t.Protocol == "MQTT" {
 			for _, v := range t.Getters {
-				// Subscribe to stored values
+				// Subscribe to real time
 				_, err = mqtt.Subscribe("value/"+v.Name, 0)
 				if err != nil {
 					log.Fatal(err)
 				}
-				// Subscribe to real time values
-				_, err = mqtt.Subscribe(v.Name+"_value", 0)
+				// Subscribe to recorded values
+				_, err = mqtt.Subscribe("record/"+v.Name, 0)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -94,8 +95,7 @@ func GetConnection() MqttConnection {
 
 // AddGetSubscription add subscribtion on a topic for getters
 func (c MqttConnection) AddGetSubscription(topic string) {
-	c.mqtt.Subscribe(topic, 0)
-	c.mqtt.Subscribe(topic+"_value", 0)
+	c.mqtt.Subscribe("record/"+topic, 0)
 	c.mqtt.Subscribe("value/"+topic, 0)
 }
 
@@ -141,14 +141,35 @@ func handle(msg *packet.Message, err error) {
 		return
 	}
 
-	// In other cases, record the value
-	var r = record.Record{}
-	err = json.Unmarshal(msg.Payload, &r)
+	match, _ = regexp.MatchString("^record", msg.Topic)
+	if match {
+		getter := strings.Split(msg.Topic, "/")
+		recordHandler(getter[1], msg.Payload)
+		return
+	}
+
+	log.Println("Topic not recognized")
+}
+
+func recordHandler(getter string, payload []byte) {
+	var data map[string]interface{}
+	err := json.Unmarshal(payload, &data)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	r.Name = msg.Topic
+	t, err := thing.ReadMacAddress(data["macaddress"].(string))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	r := record.Record{
+		Name:    getter,
+		ThingID: t.ID,
+		Value:   data["value"],
+	}
+
+	log.Println(r)
 	r.Save()
 }
 
@@ -173,7 +194,7 @@ func getterValueHandler(payload []byte) {
 	}
 	data["topic"] = "getter-value"
 	msgString, err := json.Marshal(data)
-	mqttConn.do <- msgString
+	mqttConn.get <- msgString
 }
 
 func heartbeat(payload []byte) {
