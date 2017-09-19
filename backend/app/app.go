@@ -88,7 +88,6 @@ func checkHeartBeat() {
 				}
 			}
 		}
-		log.Println(cfg.HeartbeatTimer)
 		time.Sleep(time.Duration(cfg.HeartbeatTimer) * time.Millisecond)
 	}
 }

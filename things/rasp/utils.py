@@ -11,7 +11,7 @@ def setHeartbeat(msg):
 def heartbeat(mqttc):
   global heartbeat_time
   t = threading.Timer(heartbeat_time / 1000, heartbeat, [mqttc])
-  print(heartbeat_time)
+  t.daemon = True
   t.start()
   message = {"macaddress": getmac("wlan0")}
   mqttc[0].publish("heartbeat", json.dumps(message), qos=2)
