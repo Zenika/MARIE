@@ -20,9 +20,9 @@
           Speech
         </v-list-tile>
       </router-link>
-      <router-link to="/curves">
+      <router-link to="/charts">
         <v-list-tile class="mt-3">
-          Curves
+          Charts
         </v-list-tile>
       </router-link>
     </v-list>

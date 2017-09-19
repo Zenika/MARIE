@@ -6,16 +6,18 @@ import actions from './modules/actions'
 import getters from './modules/getters'
 import snackbar from './modules/snackbar'
 import speech from './modules/speech'
+import chart from './modules/chart'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
-    things,
     actions,
+    chart,
     getters,
     snackbar,
-    speech
+    speech,
+    things
   },
   mutations: {
     SOCKET_ONOPEN (state) {

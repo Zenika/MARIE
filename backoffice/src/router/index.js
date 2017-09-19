@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import Things from '@/components/Things'
 import ThingForm from '@/components/ThingForm'
 import Speech from '@/components/Speech'
-import Curves from '@/components/Curves'
+import Charts from '@/components/Charts'
 
 Vue.use(VueRouter)
 
@@ -30,9 +30,9 @@ export default new VueRouter({
       component: Speech
     },
     {
-      path: '/curves',
-      name: 'marie-curves',
-      component: Curves
+      path: '/charts',
+      name: 'marie-charts',
+      component: Charts
     }
   ]
 })
