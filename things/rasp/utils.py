@@ -48,8 +48,12 @@ def doSubscribeGetters(mqttc, location, macaddress, getter):
   mqttc.subscribe("location/" + location + "/getter/" + getter)
   print("Subscribed to " + getter + " getter")
 
-def record(mqttc, getter, value):
-  message = {"value": value, "macaddress": getmac("wlan0")}
+def record(mqttc, getter, value_fn):
+  print(value_fn())
+  t = threading.Timer(1, record, [mqttc, getter, value_fn])
+  t.daemon = True
+  t.start()
+  message = {"value": value_fn(), "macaddress": getmac("wlan0")}
   mqttc.publish("record/" + getter, json.dumps(message), qos=2)
 
 def return_code(mqttc, msg, code):
