@@ -56,3 +56,15 @@ func parseParams(id string, params []thing.Parameter) ([]byte, error) {
 
 	return bytParsed, nil
 }
+
+func returnCodeHandler(payload []byte) {
+	var data map[string]interface{}
+	err := json.Unmarshal(payload, &data)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	data["topic"] = "action-done"
+	msgString, err := json.Marshal(data)
+	mqttConn.do <- msgString
+}

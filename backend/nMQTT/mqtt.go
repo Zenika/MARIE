@@ -9,7 +9,6 @@ import (
 
 	"github.com/Zenika/MARIE/backend/config"
 	"github.com/Zenika/MARIE/backend/nWS"
-	"github.com/Zenika/MARIE/backend/record"
 
 	"github.com/Zenika/MARIE/backend/thing"
 
@@ -149,52 +148,6 @@ func handle(msg *packet.Message, err error) {
 	}
 
 	log.Println("Topic not recognized")
-}
-
-func recordHandler(getter string, payload []byte) {
-	var data map[string]interface{}
-	err := json.Unmarshal(payload, &data)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	t, err := thing.ReadMacAddress(data["macaddress"].(string))
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	r := record.Record{
-		Name:    getter,
-		ThingID: t.ID,
-		Value:   data["value"],
-	}
-
-	log.Println(r)
-	r.Save()
-}
-
-func returnCodeHandler(payload []byte) {
-	var data map[string]interface{}
-	err := json.Unmarshal(payload, &data)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	data["topic"] = "action-done"
-	msgString, err := json.Marshal(data)
-	mqttConn.do <- msgString
-}
-
-func getterValueHandler(payload []byte) {
-	var data map[string]interface{}
-	err := json.Unmarshal(payload, &data)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	data["topic"] = "getter-value"
-	msgString, err := json.Marshal(data)
-	mqttConn.get <- msgString
 }
 
 func heartbeat(payload []byte) {
