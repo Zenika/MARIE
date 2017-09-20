@@ -53,6 +53,5 @@ func recordHandler(getter string, payload []byte) {
 		Value:   data["value"],
 	}
 
-	log.Println(r)
 	r.Save()
 }

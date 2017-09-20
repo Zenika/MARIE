@@ -94,6 +94,7 @@ func GetConnection() MqttConnection {
 
 // AddGetSubscription add subscribtion on a topic for getters
 func (c MqttConnection) AddGetSubscription(topic string) {
+	log.Println(topic)
 	c.mqtt.Subscribe("record/"+topic, 0)
 	c.mqtt.Subscribe("value/"+topic, 0)
 }
@@ -194,6 +195,11 @@ func register(payload []byte) {
 	if err != nil {
 		log.Println(err)
 		return
+	}
+
+	// Add subscriptions to getters
+	for _, t := range t.Getters {
+		mqttConn.AddGetSubscription(t.Name)
 	}
 
 	// Transform to JSON

@@ -49,7 +49,6 @@ def doSubscribeGetters(mqttc, location, macaddress, getter):
   print("Subscribed to " + getter + " getter")
 
 def record(mqttc, getter, value_fn):
-  print(value_fn())
   t = threading.Timer(1, record, [mqttc, getter, value_fn])
   t.daemon = True
   t.start()

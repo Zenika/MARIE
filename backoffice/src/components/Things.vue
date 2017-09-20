@@ -50,5 +50,6 @@ h1, h2 {
 
 .flex {
   margin-bottom: 10px;
+  margin-right: 2px;
 }
 </style>

@@ -25,7 +25,7 @@
           <v-icon>keyboard_arrow_down</v-icon>
         </v-list-tile-action>
       </v-list-tile>
-      <v-list-tile v-tooltip:top="{ html: value, visible: false }" v-for="getter in thing.getters" :key="getter.name" @mouseover.native="doGetter(getter.name)">
+      <v-list-tile v-tooltip:top="{ html: value }" v-for="getter in thing.getters" :key="getter.name" @mouseover.native="doGetter(getter.name)">
         <v-list-tile-content>
           {{getter.type}} - {{getter.name}}
         </v-list-tile-content>

@@ -243,6 +243,6 @@ export default {
 }
 
 .input-group--text-field {
-  height: 40px;
+  height: 60px;
 }
 </style>

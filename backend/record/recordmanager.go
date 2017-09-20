@@ -81,7 +81,7 @@ func (r Record) Save() error {
 func DeleteThingID(id bson.ObjectId) error {
 	c, s := utils.Database(CollectionName)
 	defer s.Close()
-
-	err := c.Remove(bson.M{"thing_id": id})
+	log.Println("Delete")
+	_, err := c.RemoveAll(bson.M{"thing_id": id})
 	return err
 }
